@@ -15,7 +15,7 @@ authors:
     orcid: 'https://orcid.org/0000-0002-9695-6183'
 repository-code: 'https://github.com/astropenguin/xarrayspecs'
 url: 'https://astropenguin.github.io/xarrayspecs'
-abstract: xarray specifications by type hints
+abstract: Xarray specifications by type hints
 keywords:
   - annotation
   - dataclass
