@@ -1,0 +1,28 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Xarrayspecs
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Akio
+    family-names: Taniguchi
+    email: a-taniguchi@mail.kitami-it.ac.jp
+    affiliation: Kitami Institute of Technology
+    orcid: 'https://orcid.org/0000-0002-9695-6183'
+repository-code: 'https://github.com/astropenguin/xarrayspecs'
+url: 'https://astropenguin.github.io/xarrayspecs'
+abstract: xarray specifications by type hints
+keywords:
+  - annotation
+  - dataclass
+  - python
+  - specification
+  - typing
+  - xarray
+license: MIT
+version: 0.1.0
+date-released: '2026-02-22'
