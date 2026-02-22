@@ -22,7 +22,7 @@ import numpy as np
 from dataclasses import dataclass
 from numpy.typing import NDArray
 from typing import Annotated, Any
-from xarrayspecs import asarray, asset, astree, attrs, dims, dtype, use
+from xarrayspecs import attrs, dims, dtype, use
 
 
 @dataclass
@@ -69,12 +69,15 @@ weather = Weather(
 ### Create a DataArray from the specification
 
 ```python
-asarray(weather)
+from xarrayspecs import asarray
+
+
+print(asarray(weather))
 ```
 ```
 <xarray.DataArray 'temp' (lon: 2, lat: 2)> Size: 32B
-array([[280.83091127, 273.43442136],
-       [287.12430824, 276.21645775]])
+array([[281.91025577, 273.71846374],
+       [292.65314453, 288.82971128]])
 Coordinates:
   * lon      (lon) float64 16B 2.0 3.0
   * lat      (lat) float64 16B 0.0 1.0
@@ -87,7 +90,10 @@ Attributes:
 ### Create a Dataset from the specification
 
 ```python
-asset(weather)
+from xarrayspecs import asset
+
+
+print(asset(weather))
 ```
 ```
 <xarray.Dataset> Size: 96B
@@ -96,14 +102,19 @@ Coordinates:
   * lat      (lat) float64 16B 0.0 1.0
   * lon      (lon) float64 16B 2.0 3.0
 Data variables:
-    temp     (lon, lat) float64 32B 285.6 279.2 274.6 291.4
-    wind     (lon, lat) float64 32B 6.964 2.388 4.241 1.262
+    temp     (lon, lat) float64 32B 281.9 273.7 292.7 288.8
+    wind     (lon, lat) float64 32B 4.61 7.003 8.294 9.636
+Attributes:
+    location:  Tokyo
 ```
 
 ### Create a DataTree from the specification
 
 ```python
-astree(weather)
+from xarrayspecs import astree
+
+
+print(astree(weather))
 ```
 ```
 <xarray.DataTree>
@@ -113,6 +124,48 @@ Group: /
       * lat      (lat) float64 16B 0.0 1.0
       * lon      (lon) float64 16B 2.0 3.0
     Data variables:
-        temp     (lon, lat) float64 32B 285.6 279.2 274.6 291.4
-        wind     (lon, lat) float64 32B 6.964 2.388 4.241 1.262
+        temp     (lon, lat) float64 32B 281.9 273.7 292.7 288.8
+        wind     (lon, lat) float64 32B 4.61 7.003 8.294 9.636
+    Attributes:
+        location:  Tokyo
+```
+
+## Advanced Usage
+
+### Check the parsed specification
+
+```python
+from xarrayspecs import parse
+
+
+print(parse(weather))
+```
+```
+                                                       data  \
+temp      [[281.91025577121246, 273.71846373599766], [29...
+wind      [[4.609535345832531, 7.002675235912125], [8.29...
+lat                                                  [0, 1]
+lon                                                  [2, 3]
+location                                              Tokyo
+
+                                                       type  \
+temp      numpy.ndarray[tuple[typing.Any, ...], numpy.dt...
+wind      numpy.ndarray[tuple[typing.Any, ...], numpy.dt...
+lat       numpy.ndarray[tuple[typing.Any, ...], numpy.dt...
+lon       numpy.ndarray[tuple[typing.Any, ...], numpy.dt...
+location                                      <class 'str'>
+
+                                         xarray_attrs xarray_dims  \
+temp       {'long_name': 'Temperature', 'units': 'K'}  (lon, lat)
+wind      {'long_name': 'Wind speed', 'units': 'm/s'}  (lon, lat)
+lat         {'long_name': 'Latitude', 'units': 'deg'}      (lat,)
+lon        {'long_name': 'Longitude', 'units': 'deg'}      (lon,)
+location                                         None        None
+
+                     xarray_dtype xarray_use xarray_node xarray_name
+temp      <class 'numpy.float64'>       data           /        temp
+wind      <class 'numpy.float64'>       data           /        wind
+lat       <class 'numpy.float64'>      coord           /         lat
+lon       <class 'numpy.float64'>      coord           /         lon
+location                     None       attr           /    location
 ```
