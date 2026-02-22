@@ -1,2 +1,2 @@
-# xarrayspecs
-xarray specifications by type hints
+# Xarrayspecs
+Xarray specifications by type hints

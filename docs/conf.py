@@ -10,7 +10,7 @@ html_static_path = ["_static"]
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "github_url": "https://github.com/astropenguin/xarrayspecs",
-    "logo": {"text": "xarrayspecs"},
+    "logo": {"text": "Xarrayspecs"},
     "navbar_end": [
         "version-switcher",
         "theme-switcher",
