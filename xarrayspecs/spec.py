@@ -21,7 +21,7 @@ Dtype = Annotated[T, Spec(xarray_dtype=ITSELF)]
 """Type hint for xarray data type."""
 
 
-Use = Literal["attr", "attrs", "coord", "coords", "data", "vars"]
+Use = Literal["attr", "attrs", "coord", "coords", "data", "factory", "name", "vars"]
 """Type hint for xarray use."""
 
 
