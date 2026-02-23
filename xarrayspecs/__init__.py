@@ -5,9 +5,9 @@ __all__ = [
     # aliases
     "Dims",
     "Dtype",
-    "asarray",
-    "asset",
-    "astree",
+    "asdataarray",
+    "asdataset",
+    "asdatatree",
     "attrs",
     "dims",
     "dtype",

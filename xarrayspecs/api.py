@@ -1,51 +1,48 @@
-__all__ = ["asarray", "asset", "astree"]
+__all__ = ["asdataarray", "asdataset", "asdatatree"]
 
 # standard library
 from collections.abc import Hashable
-from typing import Any
+from typing import Any, TypeVar
 
 # dependencies
 import pandas as pd
 import xarray as xr
 from .spec import parse
 
+# type hints
+T = TypeVar("T")
 
-def asarray(obj: Any, /) -> xr.DataArray:
+
+def asdataarray(obj: Any, /) -> xr.DataArray:
     """Convert an xarray specification to an xarray DataArray."""
     specs = parse(obj)
-    da = xr.DataArray(
-        data=next(iter(to_vars(specs).values())),
-        coords=to_coords(specs),
-    )
+    da = to_factory(specs, xr.DataArray)(to_data(specs), to_coords(specs))
     da.attrs.update(to_attrs(specs))
+    da.name = to_name(specs, da.name)
     return da
 
 
-def asset(obj: Any, /) -> xr.Dataset:
+def asdataset(obj: Any, /) -> xr.Dataset:
     """Convert an xarray specification to an xarray Dataset."""
     specs = parse(obj)
-    ds = xr.Dataset(
-        data_vars=to_vars(specs),
-        coords=to_coords(specs),
-    )
+    ds = to_factory(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
     ds.attrs.update(to_attrs(specs))
     return ds
 
 
-def astree(obj: Any, /) -> xr.DataTree:
+def asdatatree(obj: Any, /) -> xr.DataTree:
     """Convert an xarray specification to an xarray DataTree."""
     specs = parse(obj)
     nodes: dict[str, xr.Dataset] = {}
 
-    for node, subspecs in specs.groupby("xarray_node"):
-        ds = xr.Dataset(
-            data_vars=to_vars(subspecs),
-            coords=to_coords(subspecs),
-        )
-        ds.attrs.update(to_attrs(subspecs))
-        nodes[node] = ds  # type: ignore
+    for name, group in specs.groupby("xarray_node"):
+        ds = xr.Dataset(to_vars(group), to_coords(group))
+        ds.attrs.update(to_attrs(group))
+        nodes[name] = ds  # type: ignore
 
-    return xr.DataTree.from_dict(nodes)  # type: ignore
+    dt = to_factory(specs, xr.DataTree).from_dict(nodes)  # type: ignore
+    dt.name = to_name(specs, dt.name)
+    return dt
 
 
 def to_attrs(specs: pd.DataFrame, /) -> dict[Any, Any]:
@@ -89,6 +86,29 @@ def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
                 )
 
     return coords
+
+
+def to_data(specs: pd.DataFrame, /) -> xr.DataArray:
+    """Convert a specification DataFrame to an xarray data."""
+    return next(reversed(to_vars(specs).values()))
+
+
+def to_factory(specs: pd.DataFrame, default: T, /) -> T:
+    """Convert a specification DataFrame to an xarray factory."""
+    for _, spec in specs[::-1].iterrows():
+        if spec.xarray_use == "factory":
+            return spec.data
+
+    return default
+
+
+def to_name(specs: pd.DataFrame, default: T, /) -> T:
+    """Convert a specification DataFrame to an xarray name."""
+    for _, spec in specs[::-1].iterrows():
+        if spec.xarray_use == "name":
+            return spec.data
+
+    return default
 
 
 def to_vars(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
