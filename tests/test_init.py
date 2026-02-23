@@ -1,20 +1,21 @@
 # dependencies
-import xarrayspecs
+import xarrayspecs as xs
 
 
 def test_namespace() -> None:
     # submodules
-    xarrayspecs.api
-    xarrayspecs.spec
+    xs.api
+    xs.spec
     # aliases
-    xarrayspecs.Dims
-    xarrayspecs.Dtype
-    xarrayspecs.asarray
-    xarrayspecs.asset
-    xarrayspecs.attrs
-    xarrayspecs.dims
-    xarrayspecs.dtype
-    xarrayspecs.name
-    xarrayspecs.node
-    xarrayspecs.parse
-    xarrayspecs.use
+    xs.Dims
+    xs.Dtype
+    xs.asdataarray
+    xs.asdataset
+    xs.asdatatree
+    xs.attrs
+    xs.dims
+    xs.dtype
+    xs.name
+    xs.node
+    xs.parse
+    xs.use

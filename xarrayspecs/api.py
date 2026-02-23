@@ -1,4 +1,4 @@
-__all__ = ["asarray", "asset", "astree"]
+__all__ = ["asdataarray", "asdataset", "asdatatree"]
 
 # standard library
 from collections.abc import Hashable
@@ -10,7 +10,7 @@ import xarray as xr
 from .spec import parse
 
 
-def asarray(obj: Any, /) -> xr.DataArray:
+def asdataarray(obj: Any, /) -> xr.DataArray:
     """Convert an xarray specification to an xarray DataArray."""
     specs = parse(obj)
     da = xr.DataArray(
@@ -21,7 +21,7 @@ def asarray(obj: Any, /) -> xr.DataArray:
     return da
 
 
-def asset(obj: Any, /) -> xr.Dataset:
+def asdataset(obj: Any, /) -> xr.Dataset:
     """Convert an xarray specification to an xarray Dataset."""
     specs = parse(obj)
     ds = xr.Dataset(
@@ -32,7 +32,7 @@ def asset(obj: Any, /) -> xr.Dataset:
     return ds
 
 
-def astree(obj: Any, /) -> xr.DataTree:
+def asdatatree(obj: Any, /) -> xr.DataTree:
     """Convert an xarray specification to an xarray DataTree."""
     specs = parse(obj)
     nodes: dict[str, xr.Dataset] = {}
