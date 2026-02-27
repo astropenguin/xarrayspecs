@@ -1,11 +1,21 @@
-__all__ = ["Dims", "Dtype", "attrs", "dims", "dtype", "name", "node", "parse", "use"]
+__all__ = [
+    "Dims",
+    "Dtype",
+    "attrs",
+    "cast",
+    "dims",
+    "dtype",
+    "name",
+    "node",
+    "parse",
+    "use",
+]
 
 # standard library
-from collections.abc import Hashable, Iterable
+from collections.abc import Callable, Hashable, Iterable
 from typing import Annotated, Any, Literal, TypeVar
 
 # dependencies
-import pandas as pd
 from typespecs import ITSELF, Spec, SpecFrame, from_annotated
 from typing_extensions import get_args, get_origin
 
@@ -14,58 +24,74 @@ T = TypeVar("T")
 
 
 Dims = Annotated[T, Spec(xarray_dims=ITSELF)]
-"""Type hint for xarray dimensions."""
+"""Type hint for Xarray dimensions."""
 
 
 Dtype = Annotated[T, Spec(xarray_dtype=ITSELF)]
-"""Type hint for xarray data type."""
+"""Type hint for Xarray data type."""
 
 
-Use = Literal["attr", "attrs", "coord", "coords", "data", "factory", "name", "vars"]
-"""Type hint for xarray use."""
+Use = Literal[
+    "attr",
+    "attrs",
+    "cast",
+    "coord",
+    "coords",
+    "data",
+    "name",
+    "vars",
+    "other",
+]
+"""Type hint for Xarray use."""
 
 
 def attrs(attrs: dict[Any, Any] | None, /) -> Spec:
-    """Returns a type specification for xarray attributes."""
+    """Returns a type specification for Xarray attributes."""
     return Spec(xarray_attrs=attrs)
 
 
+def cast(cast: Callable[..., Any] | None, /) -> Spec:
+    """Returns a type specification for Xarray cast."""
+    return Spec(xarray_cast=cast)
+
+
 def dims(dims: Iterable[str] | str | None, /) -> Spec:
-    """Returns a type specification for xarray dimensions."""
+    """Returns a type specification for Xarray dimensions."""
     return Spec(xarray_dims=dims)
 
 
 def dtype(dtype: Any | None, /) -> Spec:
-    """Returns a type specification for xarray data type."""
+    """Returns a type specification for Xarray data type."""
     return Spec(xarray_dtype=dtype)
 
 
 def name(name: Hashable | None, /) -> Spec:
-    """Returns a type specification for xarray name."""
+    """Returns a type specification for Xarray name."""
     return Spec(xarray_name=name)
 
 
-def node(node: str | None, /) -> Spec:
-    """Returns a type specification for xarray node."""
+def node(node: str, /) -> Spec:
+    """Returns a type specification for Xarray node."""
     return Spec(xarray_node=node)
 
 
 def use(use: Use, /) -> Spec:
-    """Returns a type specification for xarray use."""
+    """Returns a type specification for Xarray use."""
     return Spec(xarray_use=use)
 
 
 def parse(obj: Any, /) -> SpecFrame:
-    """Returns a specification DataFrame for xarray."""
+    """Returns a specification DataFrame for Xarray."""
     specs = from_annotated(
         obj,
         default={
             "xarray_attrs": None,
-            "xarray_dims": None,
+            "xarray_cast": None,
             "xarray_dtype": None,
+            "xarray_dims": None,
             "xarray_name": None,
             "xarray_node": "/",
-            "xarray_use": pd.NA,
+            "xarray_use": "other",
         },
     )
 
