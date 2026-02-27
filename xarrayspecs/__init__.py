@@ -9,6 +9,7 @@ __all__ = [
     "asdataset",
     "asdatatree",
     "attrs",
+    "cast",
     "dims",
     "dtype",
     "name",
