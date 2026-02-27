@@ -45,18 +45,13 @@ def asdatatree(obj: Any, /) -> xr.DataTree:
     return dt
 
 
-def do_nothing(obj: Any, /) -> Any:
-    """A cast that returns the input object unchanged."""
-    return obj
-
-
 def to_attrs(specs: pd.DataFrame, /) -> dict[Any, Any]:
     """Convert a specification DataFrame to Xarray attributes."""
     attrs: dict[Any, Any] = {}
 
     for _, spec in specs.iterrows():
         if spec.xarray_cast is None:
-            cast = do_nothing
+            cast = lambda data: data  # type: ignore
         else:
             cast = spec.xarray_cast
 
@@ -73,12 +68,12 @@ def to_cast(specs: pd.DataFrame, default: T, /) -> T:
     """Convert a specification DataFrame to an Xarray cast."""
     for _, spec in specs[::-1].iterrows():
         if spec.xarray_cast is None:
-            cast = do_nothing
+            cast = lambda data: data  # type: ignore
         else:
             cast = spec.xarray_cast
 
         if spec.xarray_use == "cast":
-            return cast(spec.data)
+            return cast(spec.data)  # type: ignore
 
     return default
 
@@ -127,12 +122,12 @@ def to_name(specs: pd.DataFrame, default: T, /) -> T:
     """Convert a specification DataFrame to an Xarray name."""
     for _, spec in specs[::-1].iterrows():
         if spec.xarray_cast is None:
-            cast = do_nothing
+            cast = lambda data: data  # type: ignore
         else:
             cast = spec.xarray_cast
 
         if spec.xarray_use == "name":
-            return cast(spec.data)
+            return cast(spec.data)  # type: ignore
 
     return default
 
