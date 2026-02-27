@@ -1,7 +1,7 @@
 __all__ = ["AsDataArray", "AsDataset", "AsDataTree"]
 
 # standard library
-from typing import Callable
+from collections.abc import Callable
 from typing import Protocol, TypeVar
 
 # dependencies
@@ -14,8 +14,8 @@ P = ParamSpec("P")
 T = TypeVar("T")
 
 
-class HasCast(Protocol[P, T]):
-    cast_: Callable[..., T]
+class HasType(Protocol[P, T]):
+    type_: Callable[..., T]
 
     def __init__(self, *args: P.args, **kwargs: P.kwargs) -> None: ...
 
@@ -23,10 +23,10 @@ class HasCast(Protocol[P, T]):
 class AsDataArray:
     """Mixin class for Xarray DataArray specifications."""
 
-    cast_: Callable[..., xr.DataArray]
+    type_: Callable[..., xr.DataArray]
 
     @classmethod
-    def new(cls: type[HasCast[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
+    def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
         """Convert the Xarray specification to an Xarray DataArray."""
         return asdataarray(cls(*args, **kwargs))
 
@@ -34,10 +34,10 @@ class AsDataArray:
 class AsDataset:
     """Mixin class for Xarray Dataset specifications."""
 
-    cast_: Callable[..., xr.Dataset]
+    type_: Callable[..., xr.Dataset]
 
     @classmethod
-    def new(cls: type[HasCast[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
+    def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
         """Convert the Xarray specification to an Xarray Dataset."""
         return asdataset(cls(*args, **kwargs))
 
@@ -45,9 +45,9 @@ class AsDataset:
 class AsDataTree:
     """Mixin class for Xarray DataTree specifications."""
 
-    cast_: Callable[..., xr.DataTree]
+    type_: Callable[..., xr.DataTree]
 
     @classmethod
-    def new(cls: type[HasCast[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
+    def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
         """Convert the Xarray specification to an Xarray DataTree."""
         return asdatatree(cls(*args, **kwargs))

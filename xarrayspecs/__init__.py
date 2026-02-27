@@ -13,12 +13,12 @@ __all__ = [
     "asdataset",
     "asdatatree",
     "attrs",
-    "cast",
     "dims",
     "dtype",
     "name",
     "node",
     "parse",
+    "type",
     "use",
 ]
 __version__ = "0.1.0"
