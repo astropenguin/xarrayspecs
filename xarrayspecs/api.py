@@ -1,8 +1,8 @@
 __all__ = ["asdataarray", "asdataset", "asdatatree"]
 
 # standard library
-from collections.abc import Hashable
-from typing import Any, TypeVar
+from collections.abc import Callable, Hashable
+from typing import Any, Protocol, TypeVar, overload
 
 # dependencies
 import pandas as pd
@@ -13,7 +13,15 @@ from .spec import parse
 T = TypeVar("T")
 
 
-def asdataarray(obj: Any, /) -> xr.DataArray:
+class HasCast(Protocol[T]):
+    cast_: Callable[..., T]
+
+
+@overload
+def asdataarray(obj: HasCast[T], /) -> T: ...  # type: ignore
+@overload
+def asdataarray(obj: Any, /) -> xr.DataArray: ...
+def asdataarray(obj: Any, /) -> Any:
     """Convert an Xarray specification to an Xarray DataArray."""
     specs = parse(obj)
     da = to_cast(specs, xr.DataArray)(to_data(specs), to_coords(specs))
@@ -22,7 +30,11 @@ def asdataarray(obj: Any, /) -> xr.DataArray:
     return da
 
 
-def asdataset(obj: Any, /) -> xr.Dataset:
+@overload
+def asdataset(obj: HasCast[T], /) -> T: ...  # type: ignore
+@overload
+def asdataset(obj: Any, /) -> xr.Dataset: ...
+def asdataset(obj: Any, /) -> Any:
     """Convert an Xarray specification to an Xarray Dataset."""
     specs = parse(obj)
     ds = to_cast(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
@@ -30,7 +42,11 @@ def asdataset(obj: Any, /) -> xr.Dataset:
     return ds
 
 
-def asdatatree(obj: Any, /) -> xr.DataTree:
+@overload
+def asdatatree(obj: HasCast[T], /) -> T: ...  # type: ignore
+@overload
+def asdatatree(obj: Any, /) -> xr.DataTree: ...
+def asdatatree(obj: Any, /) -> Any:
     """Convert an Xarray specification to an Xarray DataTree."""
     specs = parse(obj)
     nodes: dict[str, xr.Dataset] = {}
