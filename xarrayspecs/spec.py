@@ -1,6 +1,7 @@
 __all__ = [
     "Dims",
     "Dtype",
+    "Type",
     "attrs",
     "dims",
     "dtype",
@@ -29,6 +30,10 @@ Dims = Annotated[T, Spec(xarray_dims=ITSELF)]
 
 Dtype = Annotated[T, Spec(xarray_dtype=ITSELF)]
 """Type hint for Xarray data type."""
+
+
+Type = Annotated[T, Spec(xarray_type=ITSELF)]
+"""Type hint for Xarray type."""
 
 
 Use = Literal[

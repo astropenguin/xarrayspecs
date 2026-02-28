@@ -9,6 +9,7 @@ __all__ = [
     "AsDataTree",
     "Dims",
     "Dtype",
+    "Type",
     "asdataarray",
     "asdataset",
     "asdatatree",
