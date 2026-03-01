@@ -1,8 +1,8 @@
 __all__ = ["asdataarray", "asdataset", "asdatatree"]
 
 # standard library
-from collections.abc import Hashable
-from typing import Any, TypeVar
+from collections.abc import Callable, Hashable
+from typing import Any, Protocol, TypeVar, overload
 
 # dependencies
 import pandas as pd
@@ -13,25 +13,41 @@ from .spec import parse
 T = TypeVar("T")
 
 
-def asdataarray(obj: Any, /) -> xr.DataArray:
-    """Convert an Xarray specification to an Xarray DataArray."""
+class HasType(Protocol[T]):
+    type_: Callable[..., T]
+
+
+@overload
+def asdataarray(obj: HasType[T], /) -> T: ...  # type: ignore
+@overload
+def asdataarray(obj: Any, /) -> xr.DataArray: ...
+def asdataarray(obj: Any, /) -> Any:
+    """Convert given Xarray specifications to an Xarray DataArray."""
     specs = parse(obj)
-    da = to_cast(specs, xr.DataArray)(to_data(specs), to_coords(specs))
+    da = to_type(specs, xr.DataArray)(to_data(specs), to_coords(specs))
     da.attrs.update(to_attrs(specs))
     da.name = to_name(specs, da.name)
     return da
 
 
-def asdataset(obj: Any, /) -> xr.Dataset:
-    """Convert an Xarray specification to an Xarray Dataset."""
+@overload
+def asdataset(obj: HasType[T], /) -> T: ...  # type: ignore
+@overload
+def asdataset(obj: Any, /) -> xr.Dataset: ...
+def asdataset(obj: Any, /) -> Any:
+    """Convert given Xarray specifications to an Xarray Dataset."""
     specs = parse(obj)
-    ds = to_cast(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
+    ds = to_type(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
     ds.attrs.update(to_attrs(specs))
     return ds
 
 
-def asdatatree(obj: Any, /) -> xr.DataTree:
-    """Convert an Xarray specification to an Xarray DataTree."""
+@overload
+def asdatatree(obj: HasType[T], /) -> T: ...  # type: ignore
+@overload
+def asdatatree(obj: Any, /) -> xr.DataTree: ...
+def asdatatree(obj: Any, /) -> Any:
+    """Convert given Xarray specifications to an Xarray DataTree."""
     specs = parse(obj)
     nodes: dict[str, xr.Dataset] = {}
 
@@ -40,14 +56,9 @@ def asdatatree(obj: Any, /) -> xr.DataTree:
         ds.attrs.update(to_attrs(group))
         nodes[name] = ds  # type: ignore
 
-    dt = to_cast(specs, xr.DataTree).from_dict(nodes)  # type: ignore
+    dt = to_type(specs, xr.DataTree).from_dict(nodes)  # type: ignore
     dt.name = to_name(specs, dt.name)
     return dt
-
-
-def do_nothing(obj: Any, /) -> Any:
-    """A cast that returns the input object unchanged."""
-    return obj
 
 
 def to_attrs(specs: pd.DataFrame, /) -> dict[Any, Any]:
@@ -55,32 +66,18 @@ def to_attrs(specs: pd.DataFrame, /) -> dict[Any, Any]:
     attrs: dict[Any, Any] = {}
 
     for _, spec in specs.iterrows():
-        if spec.xarray_cast is None:
-            cast = do_nothing
+        if spec.xarray_type is None:
+            type_ = lambda data: data  # type: ignore
         else:
-            cast = spec.xarray_cast
+            type_ = spec.xarray_type
 
         if spec.xarray_use == "attr":
-            attrs[spec.xarray_name] = cast(spec.data)
+            attrs[spec.xarray_name] = type_(spec.data)
         elif spec.xarray_use == "attrs":
             for name, data in spec.data.items():
-                attrs[name] = cast(data)
+                attrs[name] = type_(data)
 
     return attrs
-
-
-def to_cast(specs: pd.DataFrame, default: T, /) -> T:
-    """Convert a specification DataFrame to an Xarray cast."""
-    for _, spec in specs[::-1].iterrows():
-        if spec.xarray_cast is None:
-            cast = do_nothing
-        else:
-            cast = spec.xarray_cast
-
-        if spec.xarray_use == "cast":
-            return cast(spec.data)
-
-    return default
 
 
 def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
@@ -88,13 +85,13 @@ def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
     coords: dict[Hashable, xr.DataArray] = {}
 
     for _, spec in specs.iterrows():
-        if spec.xarray_cast is None:
-            cast = xr.DataArray
+        if spec.xarray_type is None:
+            type_ = xr.DataArray
         else:
-            cast = spec.xarray_cast
+            type_ = spec.xarray_type
 
         if spec.xarray_use == "coord":
-            coords[spec.xarray_name] = cast(
+            coords[spec.xarray_name] = type_(
                 data=spec.data,
                 dims=spec.xarray_dims,
                 name=spec.xarray_name,
@@ -105,7 +102,7 @@ def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
             )
         elif spec.xarray_use == "coords":
             for name, data in spec.data.items():
-                coords[name] = cast(
+                coords[name] = type_(
                     data=data,
                     dims=spec.xarray_dims,
                     name=name,
@@ -126,13 +123,27 @@ def to_data(specs: pd.DataFrame, /) -> xr.DataArray:
 def to_name(specs: pd.DataFrame, default: T, /) -> T:
     """Convert a specification DataFrame to an Xarray name."""
     for _, spec in specs[::-1].iterrows():
-        if spec.xarray_cast is None:
-            cast = do_nothing
+        if spec.xarray_type is None:
+            type_ = lambda data: data  # type: ignore
         else:
-            cast = spec.xarray_cast
+            type_ = spec.xarray_type
 
         if spec.xarray_use == "name":
-            return cast(spec.data)
+            return type_(spec.data)  # type: ignore
+
+    return default
+
+
+def to_type(specs: pd.DataFrame, default: T, /) -> T:
+    """Convert a specification DataFrame to an Xarray type."""
+    for _, spec in specs[::-1].iterrows():
+        if spec.xarray_type is None:
+            type_ = lambda data: data  # type: ignore
+        else:
+            type_ = spec.xarray_type
+
+        if spec.xarray_use == "type":
+            return type_(spec.data)  # type: ignore
 
     return default
 
@@ -142,13 +153,13 @@ def to_vars(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
     vars: dict[Hashable, xr.DataArray] = {}
 
     for _, spec in specs.iterrows():
-        if spec.xarray_cast is None:
-            cast = xr.DataArray
+        if spec.xarray_type is None:
+            type_ = xr.DataArray
         else:
-            cast = spec.xarray_cast
+            type_ = spec.xarray_type
 
         if spec.xarray_use == "data":
-            vars[spec.xarray_name] = cast(
+            vars[spec.xarray_name] = type_(
                 data=spec.data,
                 dims=spec.xarray_dims,
                 name=spec.xarray_name,
@@ -159,7 +170,7 @@ def to_vars(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
             )
         elif spec.xarray_use == "vars":
             for name, data in spec.data.items():
-                vars[name] = cast(
+                vars[name] = type_(
                     data=data,
                     dims=spec.xarray_dims,
                     name=name,

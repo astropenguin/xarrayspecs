@@ -1,13 +1,14 @@
 __all__ = [
     "Dims",
     "Dtype",
+    "Type",
     "attrs",
-    "cast",
     "dims",
     "dtype",
     "name",
     "node",
     "parse",
+    "type",
     "use",
 ]
 
@@ -31,16 +32,20 @@ Dtype = Annotated[T, Spec(xarray_dtype=ITSELF)]
 """Type hint for Xarray data type."""
 
 
+Type = Annotated[T, Spec(xarray_type=ITSELF)]
+"""Type hint for Xarray type."""
+
+
 Use = Literal[
     "attr",
     "attrs",
-    "cast",
     "coord",
     "coords",
     "data",
     "name",
-    "vars",
     "other",
+    "type",
+    "vars",
 ]
 """Type hint for Xarray use."""
 
@@ -48,11 +53,6 @@ Use = Literal[
 def attrs(attrs: dict[Any, Any] | None, /) -> Spec:
     """Returns a type specification for Xarray attributes."""
     return Spec(xarray_attrs=attrs)
-
-
-def cast(cast: Callable[..., Any] | None, /) -> Spec:
-    """Returns a type specification for Xarray cast."""
-    return Spec(xarray_cast=cast)
 
 
 def dims(dims: Iterable[str] | str | None, /) -> Spec:
@@ -75,6 +75,11 @@ def node(node: str, /) -> Spec:
     return Spec(xarray_node=node)
 
 
+def type(type: Callable[..., Any] | None, /) -> Spec:
+    """Returns a type specification for Xarray type."""
+    return Spec(xarray_type=type)
+
+
 def use(use: Use, /) -> Spec:
     """Returns a type specification for Xarray use."""
     return Spec(xarray_use=use)
@@ -86,11 +91,11 @@ def parse(obj: Any, /) -> SpecFrame:
         obj,
         default={
             "xarray_attrs": None,
-            "xarray_cast": None,
             "xarray_dtype": None,
             "xarray_dims": None,
             "xarray_name": None,
             "xarray_node": "/",
+            "xarray_type": None,
             "xarray_use": "other",
         },
     )

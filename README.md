@@ -15,7 +15,7 @@ pip install xarrayspecs
 
 ## Basic Usage
 
-### Create an Xarray specification
+### Xarray DataArray Specifications
 
 ```python
 import numpy as np
@@ -26,20 +26,13 @@ from typing import Annotated, Any
 
 
 @dataclass
-class Weather:
+class Temp(xs.AsDataArray):
     temp: Annotated[
         NDArray[Any],
         xs.use("data"),
         xs.dims(["lon", "lat"]),
         xs.dtype(np.float64),
         xs.attrs({"long_name": "Temperature", "units": "K"}),
-    ]
-    wind: Annotated[
-        NDArray[Any],
-        xs.use("data"),
-        xs.dims(["lon", "lat"]),
-        xs.dtype(np.float64),
-        xs.attrs({"long_name": "Wind speed", "units": "m/s"}),
     ]
     lat: Annotated[
         NDArray[Any],
@@ -55,39 +48,72 @@ class Weather:
         xs.dtype(np.float64),
         xs.attrs({"long_name": "Longitude", "units": "deg"}),
     ]
-    location: Annotated[str, xs.use("attr")] = "Tokyo"
+    date: Annotated[str, xs.use("attr")]
 
 
-weather = Weather(
+Temp.new(
     np.random.uniform(273, 293, size=(2, 2)),
-    np.random.uniform(0, 10, size=(2, 2)),
     np.array([0, 1]),
     np.array([2, 3]),
+    "2026-03-01",
 )
 ```
-
-### Create a DataArray from the specification
-
-```python
-print(xs.asdataarray(weather))
 ```
-```
-<xarray.DataArray 'wind' (lon: 2, lat: 2)> Size: 32B
-array([[4.23654799, 6.45894113],
-       [4.37587211, 8.91773001]])
+<xarray.DataArray 'temp' (lon: 2, lat: 2)> Size: 32B
+array([[283.97627008, 287.30378733],
+       [285.05526752, 283.89766366]])
 Coordinates:
   * lon      (lon) float64 16B 2.0 3.0
   * lat      (lat) float64 16B 0.0 1.0
 Attributes:
-    long_name:  Wind speed
-    units:      m/s
-    location:   Tokyo
+    long_name:  Temperature
+    units:      K
+    date:       2026-03-01
 ```
 
-### Create a Dataset from the specification
+### Xarray Dataset Specifications
 
 ```python
-print(xs.asdataset(weather))
+@dataclass
+class Weather(xs.AsDataset):
+    temp: Annotated[
+        NDArray[Any],
+        xs.use("data"),
+        xs.dims(["lon", "lat"]),
+        xs.dtype(np.float64),
+        xs.attrs({"long_name": "Temperature", "units": "K"}),
+    ]
+    humid: Annotated[
+        NDArray[Any],
+        xs.use("data"),
+        xs.dims(["lon", "lat"]),
+        xs.dtype(np.float64),
+        xs.attrs({"long_name": "Humidity", "units": "%"}),
+    ]
+    lat: Annotated[
+        NDArray[Any],
+        xs.use("coord"),
+        xs.dims("lat"),
+        xs.dtype(np.float64),
+        xs.attrs({"long_name": "Latitude", "units": "deg"}),
+    ]
+    lon: Annotated[
+        NDArray[Any],
+        xs.use("coord"),
+        xs.dims("lon"),
+        xs.dtype(np.float64),
+        xs.attrs({"long_name": "Longitude", "units": "deg"}),
+    ]
+    date: Annotated[str, xs.use("attr")]
+
+
+Weather.new(
+    np.random.uniform(273, 293, size=(2, 2)),
+    np.random.uniform(0, 100, size=(2, 2)),
+    np.array([0, 1]),
+    np.array([2, 3]),
+    "2026-03-01",
+)
 ```
 ```
 <xarray.Dataset> Size: 96B
@@ -97,42 +123,97 @@ Coordinates:
   * lon      (lon) float64 16B 2.0 3.0
 Data variables:
     temp     (lon, lat) float64 32B 284.0 287.3 285.1 283.9
-    wind     (lon, lat) float64 32B 4.237 6.459 4.376 8.918
+    humid    (lon, lat) float64 32B 42.37 64.59 43.76 89.18
 Attributes:
-    location:  Tokyo
+    date:     2026-03-01
 ```
 
-### Create a DataTree from the specification
+### Xarray DataTree Specifications
 
 ```python
-print(xs.asdatatree(weather))
+Temp = Annotated[
+    NDArray[Any],
+    xs.name("temp"),
+    xs.use("data"),
+    xs.dims(["lon", "lat"]),
+    xs.dtype(np.float64),
+    xs.attrs({"long_name": "Temperature", "units": "K"}),
+]
+Humid = Annotated[
+    NDArray[Any],
+    xs.name("humid"),
+    xs.use("data"),
+    xs.dims(["lon", "lat"]),
+    xs.dtype(np.float64),
+    xs.attrs({"long_name": "Humidity", "units": "%"}),
+]
+Lat = Annotated[
+    NDArray[Any],
+    xs.name("lat"),
+    xs.use("coord"),
+    xs.dims("lat"),
+    xs.dtype(np.float64),
+    xs.attrs({"long_name": "Latitude", "units": "deg"}),
+]
+Lon = Annotated[
+    NDArray[Any],
+    xs.name("lon"),
+    xs.use("coord"),
+    xs.dims("lon"),
+    xs.dtype(np.float64),
+    xs.attrs({"long_name": "Longitude", "units": "deg"}),
+]
+Date = Annotated[str, xs.name("date"), xs.use("attr")]
+
+
+@dataclass
+class Weathers(xs.AsDataTree):
+    temp_0: Annotated[Temp, xs.node("/0")]
+    temp_1: Annotated[Temp, xs.node("/1")]
+    humid_0: Annotated[Humid, xs.node("/0")]
+    humid_1: Annotated[Humid, xs.node("/1")]
+    lat_0: Annotated[Lat, xs.node("/0")]
+    lat_1: Annotated[Lat, xs.node("/1")]
+    lon_0: Annotated[Lon, xs.node("/0")]
+    lon_1: Annotated[Lon, xs.node("/1")]
+    date_0: Annotated[Date, xs.node("/0")]
+    date_1: Annotated[Date, xs.node("/1")]
+
+
+Weathers.new(
+    np.random.uniform(273, 293, size=(2, 2)),
+    np.random.uniform(273, 293, size=(2, 2)),
+    np.random.uniform(0, 100, size=(2, 2)),
+    np.random.uniform(0, 100, size=(2, 2)),
+    np.array([0, 1]),
+    np.array([0, 1]),
+    np.array([2, 3]),
+    np.array([2, 3]),
+    "2026-03-01",
+    "2026-03-01",
+)
 ```
 ```
 <xarray.DataTree>
 Group: /
-    Dimensions:  (lat: 2, lon: 2)
-    Coordinates:
-      * lat      (lat) float64 16B 0.0 1.0
-      * lon      (lon) float64 16B 2.0 3.0
-    Data variables:
-        temp     (lon, lat) float64 32B 284.0 287.3 285.1 283.9
-        wind     (lon, lat) float64 32B 4.237 6.459 4.376 8.918
-    Attributes:
-        location:  Tokyo
-```
-
-## Advanced Usage
-
-### Check the parsed specification
-
-```python
-print(xs.parse(weather))
-```
-```
-                                                       data                                               type                                 xarray_attrs xarray_dims             xarray_dtype xarray_use xarray_node xarray_name
-temp      [[283.9762700785465, 287.3037873274484], [285....  numpy.ndarray[tuple[typing.Any, ...], numpy.dt...   {'long_name': 'Temperature', 'units': 'K'}  (lon, lat)  <class 'numpy.float64'>       data           /        temp
-wind      [[4.236547993389047, 6.458941130666561], [4.37...  numpy.ndarray[tuple[typing.Any, ...], numpy.dt...  {'long_name': 'Wind speed', 'units': 'm/s'}  (lon, lat)  <class 'numpy.float64'>       data           /        wind
-lat                                                  [0, 1]  numpy.ndarray[tuple[typing.Any, ...], numpy.dt...    {'long_name': 'Latitude', 'units': 'deg'}      (lat,)  <class 'numpy.float64'>      coord           /         lat
-lon                                                  [2, 3]  numpy.ndarray[tuple[typing.Any, ...], numpy.dt...   {'long_name': 'Longitude', 'units': 'deg'}      (lon,)  <class 'numpy.float64'>      coord           /         lon
-location                                              Tokyo                                      <class 'str'>                                         None        None                     None       attr           /    location
+├── Group: /0
+│       Dimensions:  (lat: 2, lon: 2)
+│       Coordinates:
+│         * lat      (lat) float64 16B 0.0 1.0
+│         * lon      (lon) float64 16B 2.0 3.0
+│       Data variables:
+│           temp     (lon, lat) float64 32B 284.0 287.3 285.1 283.9
+│           humid    (lon, lat) float64 32B 96.37 38.34 79.17 52.89
+│       Attributes:
+│           date:     2026-03-01
+└── Group: /1
+        Dimensions:  (lat: 2, lon: 2)
+        Coordinates:
+          * lat      (lat) float64 16B 0.0 1.0
+          * lon      (lon) float64 16B 2.0 3.0
+        Data variables:
+            temp     (lon, lat) float64 32B 281.5 285.9 281.8 290.8
+            humid    (lon, lat) float64 32B 56.8 92.56 7.104 8.713
+        Attributes:
+            date:     2026-03-01
 ```
