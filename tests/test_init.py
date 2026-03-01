@@ -5,10 +5,15 @@ import xarrayspecs as xs
 def test_namespace() -> None:
     # submodules
     xs.api
+    xs.convert
     xs.spec
     # aliases
+    xs.AsDataArray
+    xs.AsDataset
+    xs.AsDataTree
     xs.Dims
     xs.Dtype
+    xs.Type
     xs.asdataarray
     xs.asdataset
     xs.asdatatree
@@ -17,5 +22,5 @@ def test_namespace() -> None:
     xs.dtype
     xs.name
     xs.node
-    xs.parse
+    xs.type
     xs.use
