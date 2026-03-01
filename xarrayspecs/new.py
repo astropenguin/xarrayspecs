@@ -27,7 +27,7 @@ class AsDataArray:
 
     @classmethod
     def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
-        """Convert the Xarray specification to an Xarray DataArray."""
+        """Convert the Xarray specifications to an Xarray DataArray."""
         return asdataarray(cls(*args, **kwargs))
 
 
@@ -38,7 +38,7 @@ class AsDataset:
 
     @classmethod
     def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
-        """Convert the Xarray specification to an Xarray Dataset."""
+        """Convert the Xarray specifications to an Xarray Dataset."""
         return asdataset(cls(*args, **kwargs))
 
 
@@ -49,5 +49,5 @@ class AsDataTree:
 
     @classmethod
     def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
-        """Convert the Xarray specification to an Xarray DataTree."""
+        """Convert the Xarray specifications to an Xarray DataTree."""
         return asdatatree(cls(*args, **kwargs))

@@ -22,7 +22,7 @@ def asdataarray(obj: HasType[T], /) -> T: ...  # type: ignore
 @overload
 def asdataarray(obj: Any, /) -> xr.DataArray: ...
 def asdataarray(obj: Any, /) -> Any:
-    """Convert an Xarray specification to an Xarray DataArray."""
+    """Convert given Xarray specifications to an Xarray DataArray."""
     specs = parse(obj)
     da = to_type(specs, xr.DataArray)(to_data(specs), to_coords(specs))
     da.attrs.update(to_attrs(specs))
@@ -35,7 +35,7 @@ def asdataset(obj: HasType[T], /) -> T: ...  # type: ignore
 @overload
 def asdataset(obj: Any, /) -> xr.Dataset: ...
 def asdataset(obj: Any, /) -> Any:
-    """Convert an Xarray specification to an Xarray Dataset."""
+    """Convert given Xarray specifications to an Xarray Dataset."""
     specs = parse(obj)
     ds = to_type(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
     ds.attrs.update(to_attrs(specs))
@@ -47,7 +47,7 @@ def asdatatree(obj: HasType[T], /) -> T: ...  # type: ignore
 @overload
 def asdatatree(obj: Any, /) -> xr.DataTree: ...
 def asdatatree(obj: Any, /) -> Any:
-    """Convert an Xarray specification to an Xarray DataTree."""
+    """Convert given Xarray specifications to an Xarray DataTree."""
     specs = parse(obj)
     nodes: dict[str, xr.Dataset] = {}
 
