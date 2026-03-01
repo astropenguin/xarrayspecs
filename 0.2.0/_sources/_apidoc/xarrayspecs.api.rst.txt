@@ -1,0 +1,7 @@
+xarrayspecs.api module
+======================
+
+.. automodule:: xarrayspecs.api
+   :members:
+   :show-inheritance:
+   :undoc-members:
