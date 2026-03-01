@@ -1,7 +1,7 @@
 __all__ = [
     # submodules
     "api",
-    "new",
+    "convert",
     "spec",
     # aliases
     "AsDataArray",
@@ -18,7 +18,6 @@ __all__ = [
     "dtype",
     "name",
     "node",
-    "parse",
     "type",
     "use",
 ]
@@ -26,7 +25,6 @@ __version__ = "0.2.0"
 
 
 # dependencies
-from . import api, new, spec
+from . import api, convert, spec
 from .api import *
-from .new import *
 from .spec import *
