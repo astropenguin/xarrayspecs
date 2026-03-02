@@ -1,183 +1,87 @@
-__all__ = ["asdataarray", "asdataset", "asdatatree"]
+__all__ = [
+    "AsDataArray",
+    "AsDataset",
+    "AsDataTree",
+    "asdataarray",
+    "asdataset",
+    "asdatatree",
+]
 
 # standard library
-from collections.abc import Callable, Hashable
+from collections.abc import Callable
 from typing import Any, Protocol, TypeVar, overload
 
 # dependencies
-import pandas as pd
 import xarray as xr
-from .spec import parse
+from typing_extensions import ParamSpec
+from .convert import to_dataarray, to_dataset, to_datatree, to_specframe
 
 # type hints
+P = ParamSpec("P")
 T = TypeVar("T")
 
 
-class HasType(Protocol[T]):
+class HasType(Protocol[P, T]):
     type_: Callable[..., T]
+
+    def __init__(self, *args: P.args, **kwargs: P.kwargs) -> None: ...
+
+
+class AsDataArray:
+    """Mixin class for Xarray DataArray specifications."""
+
+    type_: Callable[..., xr.DataArray]
+
+    @classmethod
+    def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
+        """Convert the Xarray specifications to an Xarray DataArray."""
+        return asdataarray(cls(*args, **kwargs))
+
+
+class AsDataset:
+    """Mixin class for Xarray Dataset specifications."""
+
+    type_: Callable[..., xr.Dataset]
+
+    @classmethod
+    def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
+        """Convert the Xarray specifications to an Xarray Dataset."""
+        return asdataset(cls(*args, **kwargs))
+
+
+class AsDataTree:
+    """Mixin class for Xarray DataTree specifications."""
+
+    type_: Callable[..., xr.DataTree]
+
+    @classmethod
+    def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T:
+        """Convert the Xarray specifications to an Xarray DataTree."""
+        return asdatatree(cls(*args, **kwargs))
 
 
 @overload
-def asdataarray(obj: HasType[T], /) -> T: ...  # type: ignore
+def asdataarray(obj: HasType[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdataarray(obj: Any, /) -> xr.DataArray: ...
 def asdataarray(obj: Any, /) -> Any:
     """Convert given Xarray specifications to an Xarray DataArray."""
-    specs = parse(obj)
-    da = to_type(specs, xr.DataArray)(to_data(specs), to_coords(specs))
-    da.attrs.update(to_attrs(specs))
-    da.name = to_name(specs, da.name)
-    return da
+    return to_dataarray(to_specframe(obj))
 
 
 @overload
-def asdataset(obj: HasType[T], /) -> T: ...  # type: ignore
+def asdataset(obj: HasType[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdataset(obj: Any, /) -> xr.Dataset: ...
 def asdataset(obj: Any, /) -> Any:
     """Convert given Xarray specifications to an Xarray Dataset."""
-    specs = parse(obj)
-    ds = to_type(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
-    ds.attrs.update(to_attrs(specs))
-    return ds
+    return to_dataset(to_specframe(obj))
 
 
 @overload
-def asdatatree(obj: HasType[T], /) -> T: ...  # type: ignore
+def asdatatree(obj: HasType[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdatatree(obj: Any, /) -> xr.DataTree: ...
 def asdatatree(obj: Any, /) -> Any:
     """Convert given Xarray specifications to an Xarray DataTree."""
-    specs = parse(obj)
-    nodes: dict[str, xr.Dataset] = {}
-
-    for name, group in specs.groupby("xarray_node"):
-        ds = xr.Dataset(to_vars(group), to_coords(group))
-        ds.attrs.update(to_attrs(group))
-        nodes[name] = ds  # type: ignore
-
-    dt = to_type(specs, xr.DataTree).from_dict(nodes)  # type: ignore
-    dt.name = to_name(specs, dt.name)
-    return dt
-
-
-def to_attrs(specs: pd.DataFrame, /) -> dict[Any, Any]:
-    """Convert a specification DataFrame to Xarray attributes."""
-    attrs: dict[Any, Any] = {}
-
-    for _, spec in specs.iterrows():
-        if spec.xarray_type is None:
-            type_ = lambda data: data  # type: ignore
-        else:
-            type_ = spec.xarray_type
-
-        if spec.xarray_use == "attr":
-            attrs[spec.xarray_name] = type_(spec.data)
-        elif spec.xarray_use == "attrs":
-            for name, data in spec.data.items():
-                attrs[name] = type_(data)
-
-    return attrs
-
-
-def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
-    """Convert a specification DataFrame to Xarray coordinates."""
-    coords: dict[Hashable, xr.DataArray] = {}
-
-    for _, spec in specs.iterrows():
-        if spec.xarray_type is None:
-            type_ = xr.DataArray
-        else:
-            type_ = spec.xarray_type
-
-        if spec.xarray_use == "coord":
-            coords[spec.xarray_name] = type_(
-                data=spec.data,
-                dims=spec.xarray_dims,
-                name=spec.xarray_name,
-                attrs=spec.xarray_attrs,
-            ).astype(  # type: ignore
-                spec.xarray_dtype,
-                copy=False,
-            )
-        elif spec.xarray_use == "coords":
-            for name, data in spec.data.items():
-                coords[name] = type_(
-                    data=data,
-                    dims=spec.xarray_dims,
-                    name=name,
-                    attrs=spec.xarray_attrs,
-                ).astype(  # type: ignore
-                    spec.xarray_dtype,
-                    copy=False,
-                )
-
-    return coords
-
-
-def to_data(specs: pd.DataFrame, /) -> xr.DataArray:
-    """Convert a specification DataFrame to an Xarray data."""
-    return next(reversed(to_vars(specs).values()))
-
-
-def to_name(specs: pd.DataFrame, default: T, /) -> T:
-    """Convert a specification DataFrame to an Xarray name."""
-    for _, spec in specs[::-1].iterrows():
-        if spec.xarray_type is None:
-            type_ = lambda data: data  # type: ignore
-        else:
-            type_ = spec.xarray_type
-
-        if spec.xarray_use == "name":
-            return type_(spec.data)  # type: ignore
-
-    return default
-
-
-def to_type(specs: pd.DataFrame, default: T, /) -> T:
-    """Convert a specification DataFrame to an Xarray type."""
-    for _, spec in specs[::-1].iterrows():
-        if spec.xarray_type is None:
-            type_ = lambda data: data  # type: ignore
-        else:
-            type_ = spec.xarray_type
-
-        if spec.xarray_use == "type":
-            return type_(spec.data)  # type: ignore
-
-    return default
-
-
-def to_vars(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
-    """Convert a specification DataFrame to Xarray data variables."""
-    vars: dict[Hashable, xr.DataArray] = {}
-
-    for _, spec in specs.iterrows():
-        if spec.xarray_type is None:
-            type_ = xr.DataArray
-        else:
-            type_ = spec.xarray_type
-
-        if spec.xarray_use == "data":
-            vars[spec.xarray_name] = type_(
-                data=spec.data,
-                dims=spec.xarray_dims,
-                name=spec.xarray_name,
-                attrs=spec.xarray_attrs,
-            ).astype(  # type: ignore
-                spec.xarray_dtype,
-                copy=False,
-            )
-        elif spec.xarray_use == "vars":
-            for name, data in spec.data.items():
-                vars[name] = type_(
-                    data=data,
-                    dims=spec.xarray_dims,
-                    name=name,
-                    attrs=spec.xarray_attrs,
-                ).astype(  # type: ignore
-                    spec.xarray_dtype,
-                    copy=False,
-                )
-
-    return vars
+    return to_datatree(to_specframe(obj))

@@ -1303,15 +1303,15 @@ wheels = [
 
 [[package]]
 name = "typespecs"
-version = "2.0.1"
+version = "2.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pandas" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/4a/3736347a9d3c325783b4bc8b9b849f4a716d783336aaf8aa6c46be256540/typespecs-2.0.1.tar.gz", hash = "sha256:d026f31eaf3843be4372a4ca7ab7a27bc96d352c90bb47a754d4801c8d053468", size = 78860, upload-time = "2026-02-22T02:50:25.057Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fb/b8/ce8f01bc7ca4d38d8d1ad4fc24b8356035e4b3a461ff49960d923822258e/typespecs-2.0.2.tar.gz", hash = "sha256:8cd4bc1e39755ba4904a6bbd48492c8f6b539e8a1c40f46846e62e1dec176a9e", size = 79057, upload-time = "2026-03-02T02:52:14.489Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/50/7e53b3b556175346d210f3e75674dc97fde7820be337f0e5fb48679ebba8/typespecs-2.0.1-py3-none-any.whl", hash = "sha256:2a43dd1ad71dd1eb141de74930e0ea59d3e0a5d9bfc08108003161b29e25a798", size = 7389, upload-time = "2026-02-22T02:50:24.274Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/9e/af41d8f4c31a4bfaa2bebd62c4c1eceae9635ee2e71acd6a7ea983d2627f/typespecs-2.0.2-py3-none-any.whl", hash = "sha256:3bc0285e5422e7d82caecbe2bdc3d4414a7ca6099e60a603874dfdfb7c5e8ef1", size = 7585, upload-time = "2026-03-02T02:52:15.612Z" },
 ]
 
 [[package]]
