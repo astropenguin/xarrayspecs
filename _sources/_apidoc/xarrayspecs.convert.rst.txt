@@ -1,0 +1,7 @@
+xarrayspecs.convert module
+==========================
+
+.. automodule:: xarrayspecs.convert
+   :members:
+   :show-inheritance:
+   :undoc-members:
