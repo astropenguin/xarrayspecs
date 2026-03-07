@@ -30,23 +30,23 @@ class Temp(xs.AsDataArray):
     temp: Annotated[
         NDArray[Any],
         xs.use("data"),
-        xs.dims(["lon", "lat"]),
+        xs.dims("lon", "lat"),
         xs.dtype(np.float64),
-        xs.attrs({"long_name": "Temperature", "units": "K"}),
+        xs.attrs(long_name="Temperature", units="K"),
     ]
     lat: Annotated[
         NDArray[Any],
         xs.use("coord"),
         xs.dims("lat"),
         xs.dtype(np.float64),
-        xs.attrs({"long_name": "Latitude", "units": "deg"}),
+        xs.attrs(long_name="Latitude", units="deg"),
     ]
     lon: Annotated[
         NDArray[Any],
         xs.use("coord"),
         xs.dims("lon"),
         xs.dtype(np.float64),
-        xs.attrs({"long_name": "Longitude", "units": "deg"}),
+        xs.attrs(long_name="Longitude", units="deg"),
     ]
     date: Annotated[str, xs.use("attr")]
 
@@ -79,30 +79,30 @@ class Weather(xs.AsDataset):
     temp: Annotated[
         NDArray[Any],
         xs.use("data"),
-        xs.dims(["lon", "lat"]),
+        xs.dims("lon", "lat"),
         xs.dtype(np.float64),
-        xs.attrs({"long_name": "Temperature", "units": "K"}),
+        xs.attrs(long_name="Temperature", units="K"),
     ]
     humid: Annotated[
         NDArray[Any],
         xs.use("data"),
-        xs.dims(["lon", "lat"]),
+        xs.dims("lon", "lat"),
         xs.dtype(np.float64),
-        xs.attrs({"long_name": "Humidity", "units": "%"}),
+        xs.attrs(long_name="Humidity", units="%"),
     ]
     lat: Annotated[
         NDArray[Any],
         xs.use("coord"),
         xs.dims("lat"),
         xs.dtype(np.float64),
-        xs.attrs({"long_name": "Latitude", "units": "deg"}),
+        xs.attrs(long_name="Latitude", units="deg"),
     ]
     lon: Annotated[
         NDArray[Any],
         xs.use("coord"),
         xs.dims("lon"),
         xs.dtype(np.float64),
-        xs.attrs({"long_name": "Longitude", "units": "deg"}),
+        xs.attrs(long_name="Longitude", units="deg"),
     ]
     date: Annotated[str, xs.use("attr")]
 
@@ -133,37 +133,37 @@ Attributes:
 ```python
 Temp = Annotated[
     NDArray[Any],
-    xs.name("temp"),
     xs.use("data"),
-    xs.dims(["lon", "lat"]),
+    xs.name("temp"),
+    xs.dims("lon", "lat"),
     xs.dtype(np.float64),
-    xs.attrs({"long_name": "Temperature", "units": "K"}),
+    xs.attrs(long_name="Temperature", units="K"),
 ]
 Humid = Annotated[
     NDArray[Any],
-    xs.name("humid"),
     xs.use("data"),
-    xs.dims(["lon", "lat"]),
+    xs.name("humid"),
+    xs.dims("lon", "lat"),
     xs.dtype(np.float64),
-    xs.attrs({"long_name": "Humidity", "units": "%"}),
+    xs.attrs(long_name="Humidity", units="%"),
 ]
 Lat = Annotated[
     NDArray[Any],
-    xs.name("lat"),
     xs.use("coord"),
+    xs.name("lat"),
     xs.dims("lat"),
     xs.dtype(np.float64),
-    xs.attrs({"long_name": "Latitude", "units": "deg"}),
+    xs.attrs(long_name="Latitude", units="deg"),
 ]
 Lon = Annotated[
     NDArray[Any],
-    xs.name("lon"),
     xs.use("coord"),
+    xs.name("lon"),
     xs.dims("lon"),
     xs.dtype(np.float64),
-    xs.attrs({"long_name": "Longitude", "units": "deg"}),
+    xs.attrs(long_name="Longitude", units="deg"),
 ]
-Date = Annotated[str, xs.name("date"), xs.use("attr")]
+Date = Annotated[str, xs.use("attr"), xs.name("date")]
 
 
 @dataclass
