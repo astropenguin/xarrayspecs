@@ -10,37 +10,37 @@ from numpy.typing import NDArray
 # type hints
 Temp = Annotated[
     NDArray[Any],
-    xs.name("temp"),
     xs.use("data"),
-    xs.dims(["lon", "lat"]),
+    xs.name("temp"),
+    xs.dims("lon", "lat"),
     xs.dtype(np.float64),
-    xs.attrs({"long_name": "Temperature", "units": "K"}),
+    xs.attrs(long_name="Temperature", units="K"),
 ]
 Humid = Annotated[
     NDArray[Any],
-    xs.name("humid"),
     xs.use("data"),
-    xs.dims(["lon", "lat"]),
+    xs.name("humid"),
+    xs.dims("lon", "lat"),
     xs.dtype(np.float64),
-    xs.attrs({"long_name": "Humidity", "units": "%"}),
+    xs.attrs(long_name="Humidity", units="%"),
 ]
 Lat = Annotated[
     NDArray[Any],
-    xs.name("lat"),
     xs.use("coord"),
+    xs.name("lat"),
     xs.dims("lat"),
     xs.dtype(np.float64),
-    xs.attrs({"long_name": "Latitude", "units": "deg"}),
+    xs.attrs(long_name="Latitude", units="deg"),
 ]
 Lon = Annotated[
     NDArray[Any],
-    xs.name("lon"),
     xs.use("coord"),
+    xs.name("lon"),
     xs.dims("lon"),
     xs.dtype(np.float64),
-    xs.attrs({"long_name": "Longitude", "units": "deg"}),
+    xs.attrs(long_name="Longitude", units="deg"),
 ]
-Date = Annotated[str, xs.name("date"), xs.use("attr")]
+Date = Annotated[str, xs.use("attr"), xs.name("date")]
 
 
 @dataclass
