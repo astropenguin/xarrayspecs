@@ -12,8 +12,8 @@ __all__ = [
 ]
 
 # standard library
-from collections.abc import Callable, Hashable, Iterable
-from typing import Annotated, Any, Literal, TypeVar
+from collections.abc import Callable, Hashable, Iterable, Mapping
+from typing import Annotated, Any, Literal, TypeVar, overload
 
 # dependencies
 from typespecs import ITSELF, Spec
@@ -48,14 +48,31 @@ Use = Literal[
 """Type hint for Xarray use."""
 
 
-def attrs(attrs: dict[Any, Any] | None, /) -> Spec:
+@overload
+def attrs(attrs: Mapping[Any, Any] | None, /) -> Spec: ...
+@overload
+def attrs(**attrs: Any) -> Spec: ...
+def attrs(*args: Any, **kwargs: Any) -> Spec:
     """Returns a type specification for Xarray attributes."""
-    return Spec(xarray_attrs=attrs)
+    if len(args) == 0:
+        return Spec(xarray_attrs=kwargs)
+
+    if len(args) == 1 and not kwargs:
+        return Spec(xarray_attrs=args[0])
+
+    raise ValueError("Cannot create type specification.")
 
 
-def dims(dims: Iterable[str] | str | None, /) -> Spec:
+@overload
+def dims(dims: Iterable[Hashable] | None, /) -> Spec: ...
+@overload
+def dims(*dims: Hashable) -> Spec: ...
+def dims(*args: Any) -> Spec:
     """Returns a type specification for Xarray dimensions."""
-    return Spec(xarray_dims=dims)
+    if len(args) == 1:
+        return Spec(xarray_dims=args[0])
+    else:
+        return Spec(xarray_dims=args)
 
 
 def dtype(dtype: Any | None, /) -> Spec:

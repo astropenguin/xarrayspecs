@@ -8,20 +8,20 @@ __all__ = [
     "to_dims",
     "to_name",
     "to_specframe",
-    "to_str",
-    "to_tuple",
     "to_type",
     "to_vars",
 ]
 
 # standard library
-from collections.abc import Hashable, Iterable
-from typing import Any, Literal, TypeVar
+from collections.abc import Hashable
+from typing import Any, TypeVar
 
 # dependencies
 import pandas as pd
 import xarray as xr
+from pandas.api.types import is_scalar
 from typespecs import SpecFrame, from_annotated
+from typespecs.typing import is_literal
 from typing_extensions import get_args, get_origin
 
 # type hints
@@ -116,15 +116,18 @@ def to_datatree(specs: pd.DataFrame, /) -> xr.DataTree:
     return dt
 
 
-def to_dims(obj: Any, /) -> tuple[str, ...] | None:
-    """Convert given dimensions-like object to dimensions."""
+def to_dims(obj: Any, /) -> tuple[Hashable, ...] | None:
+    """Convert given object to Xarray dimensions."""
     if obj is None:
         return None
 
-    try:
-        return (to_str(obj),)
-    except TypeError:
-        return tuple(map(to_str, to_tuple(obj)))
+    if is_literal(obj) or is_scalar(obj):
+        obj = (obj,)
+
+    if get_origin(obj) is tuple:
+        obj = get_args(obj)
+
+    return tuple(get_args(v)[0] if is_literal(v) else v for v in obj)
 
 
 def to_name(specs: pd.DataFrame, default: T, /) -> T:
@@ -160,28 +163,6 @@ def to_specframe(obj: Any, /) -> SpecFrame:
     specs["xarray_dims"] = specs["xarray_dims"].apply(to_dims)
     specs["xarray_name"] = specs["xarray_name"].fillna(index)
     return specs
-
-
-def to_str(obj: Any, /) -> str:
-    """Convert given string-like object to a string."""
-    if get_origin(obj) is Literal:
-        return str(get_args(obj)[0])
-
-    if isinstance(obj, str):
-        return str(obj)
-
-    raise TypeError(f"Cannot convert {obj!r} to string.")
-
-
-def to_tuple(obj: Any, /) -> tuple[Any, ...]:
-    """Convert given tuple-like object to a tuple."""
-    if get_origin(obj) is tuple:
-        return tuple(get_args(obj))
-
-    if isinstance(obj, Iterable):
-        return tuple(obj)  # type: ignore
-
-    raise TypeError(f"Cannot convert {obj!r} to tuple.")
 
 
 def to_type(specs: pd.DataFrame, default: T, /) -> T:
