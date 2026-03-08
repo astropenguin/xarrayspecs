@@ -52,10 +52,17 @@ def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
     coords: dict[Hashable, xr.DataArray] = {}
 
     for _, spec in specs.iterrows():
-        if spec.xarray_type is None:
-            type_ = xr.DataArray
-        else:
-            type_ = spec.xarray_type
+
+        def type_(*args: Any, **kwargs: Any) -> xr.DataArray:
+            if spec.xarray_type is None:
+                da: Any = xr.DataArray(*args, **kwargs)
+            else:
+                da: Any = spec.xarray_type(*args, **kwargs)
+
+            if spec.xarray_dtype is None:
+                return da
+            else:
+                return da.astype(spec.xarray_dtype, copy=False)
 
         if spec.xarray_use == "coord":
             coords[spec.xarray_name] = type_(
@@ -63,9 +70,6 @@ def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
                 dims=spec.xarray_dims,
                 name=spec.xarray_name,
                 attrs=spec.xarray_attrs,
-            ).astype(  # type: ignore
-                spec.xarray_dtype,
-                copy=False,
             )
         elif spec.xarray_use == "coords":
             for name, data in spec.data.items():
@@ -74,9 +78,6 @@ def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
                     dims=spec.xarray_dims,
                     name=name,
                     attrs=spec.xarray_attrs,
-                ).astype(  # type: ignore
-                    spec.xarray_dtype,
-                    copy=False,
                 )
 
     return coords
@@ -184,10 +185,17 @@ def to_vars(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
     vars: dict[Hashable, xr.DataArray] = {}
 
     for _, spec in specs.iterrows():
-        if spec.xarray_type is None:
-            type_ = xr.DataArray
-        else:
-            type_ = spec.xarray_type
+
+        def type_(*args: Any, **kwargs: Any) -> xr.DataArray:
+            if spec.xarray_type is None:
+                da: Any = xr.DataArray(*args, **kwargs)
+            else:
+                da: Any = spec.xarray_type(*args, **kwargs)
+
+            if spec.xarray_dtype is None:
+                return da
+            else:
+                return da.astype(spec.xarray_dtype, copy=False)
 
         if spec.xarray_use == "data":
             vars[spec.xarray_name] = type_(
@@ -195,9 +203,6 @@ def to_vars(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
                 dims=spec.xarray_dims,
                 name=spec.xarray_name,
                 attrs=spec.xarray_attrs,
-            ).astype(  # type: ignore
-                spec.xarray_dtype,
-                copy=False,
             )
         elif spec.xarray_use == "vars":
             for name, data in spec.data.items():
@@ -206,9 +211,6 @@ def to_vars(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
                     dims=spec.xarray_dims,
                     name=name,
                     attrs=spec.xarray_attrs,
-                ).astype(  # type: ignore
-                    spec.xarray_dtype,
-                    copy=False,
                 )
 
     return vars
