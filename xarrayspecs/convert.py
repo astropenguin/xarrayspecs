@@ -33,10 +33,12 @@ def to_attrs(specs: pd.DataFrame, /) -> dict[Any, Any]:
     attrs: dict[Any, Any] = {}
 
     for _, spec in specs.iterrows():
-        if spec.xarray_type is None:
-            type_ = lambda data: data  # type: ignore
-        else:
-            type_ = spec.xarray_type
+
+        def type_(data: Any, /) -> Any:
+            if spec.xarray_type is None:
+                return data
+            else:
+                return spec.xarray_type(data)
 
         if spec.xarray_use == "attr":
             attrs[spec.xarray_name] = type_(spec.data)
@@ -134,13 +136,15 @@ def to_dims(obj: Any, /) -> tuple[Hashable, ...] | None:
 def to_name(specs: pd.DataFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray name."""
     for _, spec in specs[::-1].iterrows():
-        if spec.xarray_type is None:
-            type_ = lambda data: data  # type: ignore
-        else:
-            type_ = spec.xarray_type
+
+        def type_(data: Any, /) -> Any:
+            if spec.xarray_type is None:
+                return data
+            else:
+                return spec.xarray_type(data)
 
         if spec.xarray_use == "name":
-            return type_(spec.data)  # type: ignore
+            return type_(spec.data)
 
     return default
 
@@ -169,13 +173,15 @@ def to_specframe(obj: Any, /) -> SpecFrame:
 def to_type(specs: pd.DataFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray type."""
     for _, spec in specs[::-1].iterrows():
-        if spec.xarray_type is None:
-            type_ = lambda data: data  # type: ignore
-        else:
-            type_ = spec.xarray_type
+
+        def type_(data: Any, /) -> Any:
+            if spec.xarray_type is None:
+                return data
+            else:
+                return spec.xarray_type(data)
 
         if spec.xarray_use == "type":
-            return type_(spec.data)  # type: ignore
+            return type_(spec.data)
 
     return default
 
