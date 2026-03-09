@@ -18,6 +18,6 @@ html_theme_options = {
     ],
     "switcher": {
         "json_url": "https://astropenguin.github.io/xarrayspecs/_static/switcher.json",
-        "version_match": "0.4.0",
+        "version_match": "0.5.0",
     },
 }
