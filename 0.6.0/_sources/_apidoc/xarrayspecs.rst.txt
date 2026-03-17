@@ -1,0 +1,17 @@
+xarrayspecs package
+===================
+
+.. automodule:: xarrayspecs
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   xarrayspecs.api
+   xarrayspecs.convert
+   xarrayspecs.spec
