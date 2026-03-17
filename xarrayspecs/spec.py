@@ -34,17 +34,7 @@ Type = Annotated[T, Spec(xarray_type=ITSELF)]
 """Type hint for Xarray type."""
 
 
-Use = Literal[
-    "attr",
-    "attrs",
-    "coord",
-    "coords",
-    "data",
-    "name",
-    "other",
-    "type",
-    "vars",
-]
+Use = Literal["attr", "attrs", "coord", "coords", "data", "name", "type", "vars"]
 """Type hint for Xarray use."""
 
 

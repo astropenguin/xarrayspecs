@@ -158,9 +158,9 @@ def to_specframe(obj: Any, /) -> SpecFrame:
             "xarray_dtype": None,
             "xarray_dims": None,
             "xarray_name": None,
-            "xarray_node": "/",
+            "xarray_node": None,
             "xarray_type": None,
-            "xarray_use": "other",
+            "xarray_use": None,
         },
     )
 
