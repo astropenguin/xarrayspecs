@@ -1,4 +1,8 @@
+author = "Akio Taniguchi"
 copyright = "2026 Akio Taniguchi"
+project = "Xarrayspecs"
+release = version = "0.5.0"
+
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
@@ -10,7 +14,7 @@ html_static_path = ["_static"]
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "github_url": "https://github.com/astropenguin/xarrayspecs",
-    "logo": {"text": "Xarrayspecs"},
+    "logo": {"text": project},
     "navbar_end": [
         "version-switcher",
         "theme-switcher",
@@ -18,6 +22,6 @@ html_theme_options = {
     ],
     "switcher": {
         "json_url": "https://astropenguin.github.io/xarrayspecs/_static/switcher.json",
-        "version_match": "0.5.0",
+        "version_match": version,
     },
 }
