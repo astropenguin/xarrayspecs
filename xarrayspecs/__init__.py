@@ -23,7 +23,6 @@ __all__ = [
 ]
 __version__ = "0.5.0"
 
-
 # dependencies
 from . import api, convert, spec
 from .api import *

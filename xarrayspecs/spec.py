@@ -21,7 +21,6 @@ from typespecs import ITSELF, Spec
 # type hints
 T = TypeVar("T")
 
-
 Dims = Annotated[T, Spec(xarray_dims=ITSELF)]
 """Type hint for Xarray dimensions."""
 
@@ -42,6 +41,8 @@ Use = Literal["attr", "attrs", "coord", "coords", "data", "name", "type", "vars"
 def attrs(attrs: Mapping[Any, Any] | None, /) -> Spec: ...
 @overload
 def attrs(**attrs: Any) -> Spec: ...
+
+
 def attrs(*args: Any, **kwargs: Any) -> Spec:
     """Returns a type specification for Xarray attributes."""
     if len(args) == 0:
@@ -57,6 +58,8 @@ def attrs(*args: Any, **kwargs: Any) -> Spec:
 def dims(dims: Iterable[Hashable] | None, /) -> Spec: ...
 @overload
 def dims(*dims: Hashable) -> Spec: ...
+
+
 def dims(*args: Any) -> Spec:
     """Returns a type specification for Xarray dimensions."""
     if len(args) == 1:
@@ -75,7 +78,7 @@ def name(name: Hashable | None, /) -> Spec:
     return Spec(xarray_name=name)
 
 
-def node(node: str, /) -> Spec:
+def node(node: str | None, /) -> Spec:
     """Returns a type specification for Xarray node."""
     return Spec(xarray_node=node)
 
@@ -85,6 +88,6 @@ def type(type: Callable[..., Any] | None, /) -> Spec:
     return Spec(xarray_type=type)
 
 
-def use(use: Use, /) -> Spec:
+def use(use: Use | None, /) -> Spec:
     """Returns a type specification for Xarray use."""
     return Spec(xarray_use=use)
