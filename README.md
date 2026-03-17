@@ -3,6 +3,7 @@
 [![Release](https://img.shields.io/pypi/v/xarrayspecs?label=Release&color=cornflowerblue&style=flat-square)](https://pypi.org/project/xarrayspecs/)
 [![Python](https://img.shields.io/pypi/pyversions/xarrayspecs?label=Python&color=cornflowerblue&style=flat-square)](https://pypi.org/project/xarrayspecs/)
 [![Downloads](https://img.shields.io/pypi/dm/xarrayspecs?label=Downloads&color=cornflowerblue&style=flat-square)](https://pepy.tech/project/xarrayspecs)
+[![DOI](https://img.shields.io/badge/DOI-10.5281/zenodo.18822589-cornflowerblue?style=flat-square)](https://doi.org/10.5281/zenodo.18822589)
 [![Tests](https://img.shields.io/github/actions/workflow/status/astropenguin/xarrayspecs/tests.yaml?label=Tests&style=flat-square)](https://github.com/astropenguin/xarrayspecs/actions)
 
 Xarray specifications by type hints

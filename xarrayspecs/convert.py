@@ -110,9 +110,7 @@ def to_datatree(specs: pd.DataFrame, /) -> xr.DataTree:
     nodes: dict[str, xr.Dataset] = {}
 
     for name, group in specs.groupby("xarray_node"):
-        ds = xr.Dataset(to_vars(group), to_coords(group))
-        ds.attrs.update(to_attrs(group))
-        nodes[name] = ds  # type: ignore
+        nodes[name] = to_dataset(group)  # type: ignore
 
     dt = to_type(specs, xr.DataTree).from_dict(nodes)  # type: ignore
     dt.name = to_name(specs, dt.name)
@@ -158,9 +156,9 @@ def to_specframe(obj: Any, /) -> SpecFrame:
             "xarray_dtype": None,
             "xarray_dims": None,
             "xarray_name": None,
-            "xarray_node": "/",
+            "xarray_node": None,
             "xarray_type": None,
-            "xarray_use": "other",
+            "xarray_use": None,
         },
     )
 

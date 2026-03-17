@@ -1,6 +1,6 @@
 [project]
 name = "xarrayspecs"
-version = "0.5.0"
+version = "0.6.0"
 description = "Xarray specifications by type hints"
 readme = "README.md"
 keywords = [
@@ -39,6 +39,10 @@ file = "LICENSE"
 homepage = "https://astropenguin.github.io/xarrayspecs"
 repository = "https://github.com/astropenguin/xarrayspecs"
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [dependency-groups]
 dev = [
     "black>=25,<27",
@@ -50,10 +54,6 @@ dev = [
     "pytest>=9,<10",
     "sphinx>=8,<9",
 ]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
 
 [tool.pyright]
 typeCheckingMode = "strict"
