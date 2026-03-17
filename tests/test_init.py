@@ -4,8 +4,8 @@ import xarrayspecs as xs
 
 def test_namespace() -> None:
     # submodules
-    xs.api
     xs.convert
+    xs.core
     xs.spec
     # aliases
     xs.AsDataArray

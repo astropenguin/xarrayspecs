@@ -1,7 +1,7 @@
 __all__ = [
     # submodules
-    "api",
     "convert",
+    "core",
     "spec",
     # aliases
     "AsDataArray",
@@ -24,6 +24,6 @@ __all__ = [
 __version__ = "0.6.0"
 
 # dependencies
-from . import api, convert, spec
-from .api import *
+from . import convert, core, spec
+from .core import *
 from .spec import *
