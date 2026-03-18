@@ -15,6 +15,7 @@ __all__ = [
 ]
 
 # standard library
+from builtins import type as Type
 from collections.abc import Callable, Hashable, Iterable, Mapping
 from typing import Any, Literal, Protocol, TypeVar, overload
 
@@ -46,10 +47,10 @@ class AsDataArray:
 
     @overload
     @classmethod
-    def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
+    def new(cls: Type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @overload
     @classmethod
-    def new(cls: type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataArray: ...
+    def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataArray: ...
 
     @classmethod
     def new(cls: Any, *args: Any, **kwargs: Any) -> Any:
@@ -62,10 +63,10 @@ class AsDataset:
 
     @overload
     @classmethod
-    def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
+    def new(cls: Type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @overload
     @classmethod
-    def new(cls: type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.Dataset: ...
+    def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.Dataset: ...
 
     @classmethod
     def new(cls: Any, *args: Any, **kwargs: Any) -> Any:
@@ -78,10 +79,10 @@ class AsDataTree:
 
     @overload
     @classmethod
-    def new(cls: type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
+    def new(cls: Type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @overload
     @classmethod
-    def new(cls: type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataTree: ...
+    def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataTree: ...
 
     @classmethod
     def new(cls: Any, *args: Any, **kwargs: Any) -> Any:
