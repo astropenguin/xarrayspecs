@@ -17,7 +17,6 @@ from collections.abc import Hashable
 from typing import Any, TypeVar
 
 # dependencies
-import pandas as pd
 import xarray as xr
 from pandas.api.types import is_scalar
 from typespecs import SpecFrame, from_annotated
@@ -28,7 +27,7 @@ from typing_extensions import get_args, get_origin
 T = TypeVar("T")
 
 
-def to_attrs(specs: pd.DataFrame, /) -> dict[Any, Any]:
+def to_attrs(specs: SpecFrame, /) -> dict[Any, Any]:
     """Convert given specification DataFrame to Xarray attributes."""
     attrs: dict[Any, Any] = {}
 
@@ -49,7 +48,7 @@ def to_attrs(specs: pd.DataFrame, /) -> dict[Any, Any]:
     return attrs
 
 
-def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
+def to_coords(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     """Convert given specification DataFrame to Xarray coordinates."""
     coords: dict[Hashable, xr.DataArray] = {}
 
@@ -85,12 +84,12 @@ def to_coords(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
     return coords
 
 
-def to_data(specs: pd.DataFrame, /) -> xr.DataArray:
+def to_data(specs: SpecFrame, /) -> xr.DataArray:
     """Convert given specification DataFrame to an Xarray data."""
     return next(reversed(to_vars(specs).values()))
 
 
-def to_dataarray(specs: pd.DataFrame, /) -> xr.DataArray:
+def to_dataarray(specs: SpecFrame, /) -> xr.DataArray:
     """Convert given specification DataFrame to an Xarray DataArray."""
     da = to_type(specs, xr.DataArray)(to_data(specs), to_coords(specs))
     da.attrs.update(to_attrs(specs))
@@ -98,14 +97,14 @@ def to_dataarray(specs: pd.DataFrame, /) -> xr.DataArray:
     return da
 
 
-def to_dataset(specs: pd.DataFrame, /) -> xr.Dataset:
+def to_dataset(specs: SpecFrame, /) -> xr.Dataset:
     """Convert given specification DataFrame to an Xarray Dataset."""
     ds = to_type(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
     ds.attrs.update(to_attrs(specs))
     return ds
 
 
-def to_datatree(specs: pd.DataFrame, /) -> xr.DataTree:
+def to_datatree(specs: SpecFrame, /) -> xr.DataTree:
     """Convert given specification DataFrame to an Xarray DataTree."""
     nodes: dict[str, xr.Dataset] = {}
 
@@ -131,7 +130,7 @@ def to_dims(obj: Any, /) -> tuple[Hashable, ...] | None:
     return tuple(get_args(v)[0] if is_literal(v) else v for v in obj)
 
 
-def to_name(specs: pd.DataFrame, default: T, /) -> T:
+def to_name(specs: SpecFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray name."""
     for _, spec in specs[::-1].iterrows():
 
@@ -168,7 +167,7 @@ def to_specframe(obj: Any, /) -> SpecFrame:
     return specs
 
 
-def to_type(specs: pd.DataFrame, default: T, /) -> T:
+def to_type(specs: SpecFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray type."""
     for _, spec in specs[::-1].iterrows():
 
@@ -184,7 +183,7 @@ def to_type(specs: pd.DataFrame, default: T, /) -> T:
     return default
 
 
-def to_vars(specs: pd.DataFrame, /) -> dict[Hashable, xr.DataArray]:
+def to_vars(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     """Convert given specification DataFrame to Xarray data variables."""
     vars: dict[Hashable, xr.DataArray] = {}
 
