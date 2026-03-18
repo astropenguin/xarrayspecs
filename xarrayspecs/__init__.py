@@ -2,14 +2,10 @@ __all__ = [
     # submodules
     "api",
     "convert",
-    "spec",
     # aliases
     "AsDataArray",
     "AsDataset",
     "AsDataTree",
-    "Dims",
-    "Dtype",
-    "Type",
     "asdataarray",
     "asdataset",
     "asdatatree",
@@ -24,6 +20,5 @@ __all__ = [
 __version__ = "0.6.0"
 
 # dependencies
-from . import api, convert, spec
+from . import api, convert
 from .api import *
-from .spec import *
