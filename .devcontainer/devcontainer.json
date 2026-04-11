@@ -18,6 +18,9 @@
             ],
             "settings": {
                 "black-formatter.importStrategy": "fromEnvironment",
+                "files.insertFinalNewline": true,
+                "files.trimTrailingWhitespace": true,
+                "python.analysis.autoImportCompletions": true,
                 "python.languageServer": "Pylance",
                 "[python]": {
                     "editor.defaultFormatter": "ms-python.black-formatter",
