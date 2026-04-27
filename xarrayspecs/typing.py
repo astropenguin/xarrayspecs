@@ -21,7 +21,7 @@ from typing import Annotated, Protocol, TypeVar
 
 # dependencies
 from typespecs import ITSELF
-from .api import dims, dtype, type, use
+from .core import dims, dtype, type, use
 
 # type hints
 TAny = TypeVar("TAny")
