@@ -6,14 +6,15 @@ __all__ = [
     "to_dataset",
     "to_datatree",
     "to_dims",
+    "to_factory",
     "to_name",
     "to_specframe",
-    "to_type",
     "to_vars",
 ]
 
 # standard library
 from collections.abc import Hashable
+from enum import Enum
 from typing import Any, TypeVar
 
 # dependencies
@@ -27,23 +28,27 @@ from typing_extensions import get_args, get_origin
 T = TypeVar("T")
 
 
+class Use(str, Enum):
+    ATTR = "attr"
+    ATTRS = "attrs"
+    COORD = "coord"
+    COORDS = "coords"
+    DATA = "data"
+    FACTORY = "factory"
+    NAME = "name"
+    VARS = "vars"
+
+
 def to_attrs(specs: SpecFrame, /) -> dict[Any, Any]:
     """Convert given specification DataFrame to Xarray attributes."""
     attrs: dict[Any, Any] = {}
 
     for _, spec in specs.iterrows():
-
-        def type_(data: Any, /) -> Any:
-            if spec.xarray_type is None:
-                return data
-            else:
-                return spec.xarray_type(data)
-
-        if spec.xarray_use == "attr":
-            attrs[spec.xarray_name] = type_(spec.data)
-        elif spec.xarray_use == "attrs":
+        if spec.xarrayspecs_use == Use.ATTR:
+            attrs[spec.xarrayspecs_name] = spec.data
+        elif spec.xarrayspecs_use == Use.ATTRS:
             for name, data in spec.data.items():
-                attrs[name] = type_(data)
+                attrs[name] = data
 
     return attrs
 
@@ -54,31 +59,28 @@ def to_coords(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
 
     for _, spec in specs.iterrows():
 
-        def type_(*args: Any, **kwargs: Any) -> xr.DataArray:
-            if spec.xarray_type is None:
-                da: Any = xr.DataArray(*args, **kwargs)
-            else:
-                da: Any = spec.xarray_type(*args, **kwargs)
+        def factory(*args: Any, **kwargs: Any) -> xr.DataArray:
+            da = xr.DataArray(*args, **kwargs)
 
-            if spec.xarray_dtype is None:
+            if (dtype := spec.xarrayspecs_dtype) is None:
                 return da
             else:
-                return da.astype(spec.xarray_dtype, copy=False)
+                return da.astype(dtype, copy=False)  # type: ignore
 
-        if spec.xarray_use == "coord":
-            coords[spec.xarray_name] = type_(
+        if spec.xarrayspecs_use == Use.COORD:
+            coords[spec.xarrayspecs_name] = factory(
                 data=spec.data,
-                dims=spec.xarray_dims,
-                name=spec.xarray_name,
-                attrs=spec.xarray_attrs,
+                dims=spec.xarrayspecs_dims,
+                name=spec.xarrayspecs_name,
+                attrs=spec.xarrayspecs_attrs,
             )
-        elif spec.xarray_use == "coords":
+        elif spec.xarrayspecs_use == Use.COORDS:
             for name, data in spec.data.items():
-                coords[name] = type_(
+                coords[name] = factory(
                     data=data,
-                    dims=spec.xarray_dims,
+                    dims=spec.xarrayspecs_dims,
                     name=name,
-                    attrs=spec.xarray_attrs,
+                    attrs=spec.xarrayspecs_attrs,
                 )
 
     return coords
@@ -91,7 +93,7 @@ def to_data(specs: SpecFrame, /) -> xr.DataArray:
 
 def to_dataarray(specs: SpecFrame, /) -> xr.DataArray:
     """Convert given specification DataFrame to an Xarray DataArray."""
-    da = to_type(specs, xr.DataArray)(to_data(specs), to_coords(specs))
+    da = to_factory(specs, xr.DataArray)(to_data(specs), to_coords(specs))
     da.attrs.update(to_attrs(specs))
     da.name = to_name(specs, da.name)
     return da
@@ -99,7 +101,7 @@ def to_dataarray(specs: SpecFrame, /) -> xr.DataArray:
 
 def to_dataset(specs: SpecFrame, /) -> xr.Dataset:
     """Convert given specification DataFrame to an Xarray Dataset."""
-    ds = to_type(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
+    ds = to_factory(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
     ds.attrs.update(to_attrs(specs))
     return ds
 
@@ -108,10 +110,10 @@ def to_datatree(specs: SpecFrame, /) -> xr.DataTree:
     """Convert given specification DataFrame to an Xarray DataTree."""
     nodes: dict[str, xr.Dataset] = {}
 
-    for name, group in specs.groupby("xarray_node"):
+    for name, group in specs.groupby("xarrayspecs_node"):
         nodes[name] = to_dataset(group)  # type: ignore
 
-    dt = to_type(specs, xr.DataTree).from_dict(nodes)  # type: ignore
+    dt = to_factory(specs, xr.DataTree).from_dict(nodes)  # type: ignore
     dt.name = to_name(specs, dt.name)
     return dt
 
@@ -130,18 +132,20 @@ def to_dims(obj: Any, /) -> tuple[Hashable, ...] | None:
     return tuple(get_args(v)[0] if is_literal(v) else v for v in obj)
 
 
+def to_factory(specs: SpecFrame, default: T, /) -> T:
+    """Convert given specification DataFrame to an Xarray factory."""
+    for _, spec in specs[::-1].iterrows():
+        if spec.xarrayspecs_use == Use.FACTORY:
+            return spec.data
+
+    return default
+
+
 def to_name(specs: SpecFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray name."""
     for _, spec in specs[::-1].iterrows():
-
-        def type_(data: Any, /) -> Any:
-            if spec.xarray_type is None:
-                return data
-            else:
-                return spec.xarray_type(data)
-
-        if spec.xarray_use == "name":
-            return type_(spec.data)
+        if spec.xarrayspecs_use == Use.NAME:
+            return spec.data
 
     return default
 
@@ -150,37 +154,20 @@ def to_specframe(obj: Any, /) -> SpecFrame:
     """Convert given object to a specification DataFrame."""
     specs = from_annotated(
         obj,
-        default={
-            "xarray_attrs": None,
-            "xarray_dtype": None,
-            "xarray_dims": None,
-            "xarray_name": None,
-            "xarray_node": None,
-            "xarray_type": None,
-            "xarray_use": None,
-        },
+        default=dict(
+            xarrayspecs_attrs=None,
+            xarrayspecs_dtype=None,
+            xarrayspecs_dims=None,
+            xarrayspecs_name=None,
+            xarrayspecs_node=None,
+            xarrayspecs_use=None,
+        ),
     )
 
     index = specs.index.to_series()
-    specs["xarray_dims"] = specs["xarray_dims"].apply(to_dims)
-    specs["xarray_name"] = specs["xarray_name"].fillna(index)
+    specs["xarrayspecs_dims"] = specs.xarrayspecs_dims.apply(to_dims)
+    specs["xarrayspecs_name"] = specs.xarrayspecs_name.fillna(index)
     return specs
-
-
-def to_type(specs: SpecFrame, default: T, /) -> T:
-    """Convert given specification DataFrame to an Xarray type."""
-    for _, spec in specs[::-1].iterrows():
-
-        def type_(data: Any, /) -> Any:
-            if spec.xarray_type is None:
-                return data
-            else:
-                return spec.xarray_type(data)
-
-        if spec.xarray_use == "type":
-            return type_(spec.data)
-
-    return default
 
 
 def to_vars(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
@@ -189,31 +176,28 @@ def to_vars(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
 
     for _, spec in specs.iterrows():
 
-        def type_(*args: Any, **kwargs: Any) -> xr.DataArray:
-            if spec.xarray_type is None:
-                da: Any = xr.DataArray(*args, **kwargs)
-            else:
-                da: Any = spec.xarray_type(*args, **kwargs)
+        def factory(*args: Any, **kwargs: Any) -> xr.DataArray:
+            da = xr.DataArray(*args, **kwargs)
 
-            if spec.xarray_dtype is None:
+            if (dtype := spec.xarrayspecs_dtype) is None:
                 return da
             else:
-                return da.astype(spec.xarray_dtype, copy=False)
+                return da.astype(dtype, copy=False)  # type: ignore
 
-        if spec.xarray_use == "data":
-            vars[spec.xarray_name] = type_(
+        if spec.xarrayspecs_use == Use.DATA:
+            vars[spec.xarrayspecs_name] = factory(
                 data=spec.data,
-                dims=spec.xarray_dims,
-                name=spec.xarray_name,
-                attrs=spec.xarray_attrs,
+                dims=spec.xarrayspecs_dims,
+                name=spec.xarrayspecs_name,
+                attrs=spec.xarrayspecs_attrs,
             )
-        elif spec.xarray_use == "vars":
+        elif spec.xarrayspecs_use == Use.VARS:
             for name, data in spec.data.items():
-                vars[name] = type_(
+                vars[name] = factory(
                     data=data,
-                    dims=spec.xarray_dims,
+                    dims=spec.xarrayspecs_dims,
                     name=name,
-                    attrs=spec.xarray_attrs,
+                    attrs=spec.xarrayspecs_attrs,
                 )
 
     return vars

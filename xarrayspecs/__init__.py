@@ -1,7 +1,7 @@
 __all__ = [
     # submodules
-    "api",
     "convert",
+    "core",
     "typing",
     # aliases
     "AsDataArray",
@@ -15,11 +15,10 @@ __all__ = [
     "dtype",
     "name",
     "node",
-    "type",
     "use",
 ]
 __version__ = "0.6.0"
 
 # dependencies
-from . import api, convert, typing
-from .api import *
+from . import convert, core, typing
+from .core import *

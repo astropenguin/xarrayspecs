@@ -10,7 +10,6 @@ __all__ = [
     "dtype",
     "name",
     "node",
-    "type",
     "use",
 ]
 
@@ -28,11 +27,11 @@ from .convert import to_dataarray, to_dataset, to_datatree, to_specframe
 # type hints
 P = ParamSpec("P")
 T = TypeVar("T", bound=xr.DataArray | xr.Dataset | xr.DataTree)
-Use = Literal["attr", "attrs", "coord", "coords", "data", "name", "type", "vars"]
+Use = Literal["attr", "attrs", "coord", "coords", "data", "factory", "name", "vars"]
 
 
-class HasType(Protocol[P, T]):
-    type: Callable[..., T]
+class HasFactory(Protocol[P, T]):
+    factory: Callable[..., T]
 
     def __init__(self, *args: P.args, **kwargs: P.kwargs) -> None: ...
 
@@ -47,7 +46,7 @@ class AsDataArray:
 
     @overload
     @classmethod
-    def new(cls: Type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
+    def new(cls: Type[HasFactory[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @overload
     @classmethod
     def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataArray: ...
@@ -63,7 +62,7 @@ class AsDataset:
 
     @overload
     @classmethod
-    def new(cls: Type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
+    def new(cls: Type[HasFactory[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @overload
     @classmethod
     def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.Dataset: ...
@@ -79,7 +78,7 @@ class AsDataTree:
 
     @overload
     @classmethod
-    def new(cls: Type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
+    def new(cls: Type[HasFactory[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @overload
     @classmethod
     def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataTree: ...
@@ -91,7 +90,7 @@ class AsDataTree:
 
 
 @overload
-def asdataarray(obj: HasType[P, T], /) -> T: ...  # type: ignore
+def asdataarray(obj: HasFactory[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdataarray(obj: Other[P], /) -> xr.DataArray: ...
 
@@ -102,7 +101,7 @@ def asdataarray(obj: Any, /) -> Any:
 
 
 @overload
-def asdataset(obj: HasType[P, T], /) -> T: ...  # type: ignore
+def asdataset(obj: HasFactory[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdataset(obj: Other[P], /) -> xr.Dataset: ...
 
@@ -113,7 +112,7 @@ def asdataset(obj: Any, /) -> Any:
 
 
 @overload
-def asdatatree(obj: HasType[P, T], /) -> T: ...  # type: ignore
+def asdatatree(obj: HasFactory[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdatatree(obj: Other[P], /) -> xr.DataTree: ...
 
@@ -132,10 +131,10 @@ def attrs(**attrs: Any) -> Spec: ...
 def attrs(*args: Any, **kwargs: Any) -> Spec:
     """Returns a type specification for Xarray attributes."""
     if len(args) == 0:
-        return Spec(xarray_attrs=kwargs)
+        return Spec(xarrayspecs_attrs=kwargs)
 
     if len(args) == 1 and not kwargs:
-        return Spec(xarray_attrs=args[0])
+        return Spec(xarrayspecs_attrs=args[0])
 
     raise ValueError("Cannot create type specification.")
 
@@ -149,31 +148,26 @@ def dims(*dims: Hashable) -> Spec: ...
 def dims(*args: Any) -> Spec:
     """Returns a type specification for Xarray dimensions."""
     if len(args) == 1:
-        return Spec(xarray_dims=args[0])
+        return Spec(xarrayspecs_dims=args[0])
     else:
-        return Spec(xarray_dims=args)
+        return Spec(xarrayspecs_dims=args)
 
 
 def dtype(dtype: Any | None, /) -> Spec:
     """Returns a type specification for Xarray data type."""
-    return Spec(xarray_dtype=dtype)
+    return Spec(xarrayspecs_dtype=dtype)
 
 
 def name(name: Hashable | None, /) -> Spec:
     """Returns a type specification for Xarray name."""
-    return Spec(xarray_name=name)
+    return Spec(xarrayspecs_name=name)
 
 
 def node(node: str | None, /) -> Spec:
     """Returns a type specification for Xarray node."""
-    return Spec(xarray_node=node)
-
-
-def type(type: Any | None, /) -> Spec:
-    """Returns a type specification for Xarray type."""
-    return Spec(xarray_type=type)
+    return Spec(xarrayspecs_node=node)
 
 
 def use(use: Use | None, /) -> Spec:
     """Returns a type specification for Xarray use."""
-    return Spec(xarray_use=use)
+    return Spec(xarrayspecs_use=use)
