@@ -14,6 +14,7 @@ __all__ = [
 
 # standard library
 from collections.abc import Hashable
+from enum import Enum
 from typing import Any, TypeVar
 
 # dependencies
@@ -27,14 +28,25 @@ from typing_extensions import get_args, get_origin
 T = TypeVar("T")
 
 
+class Use(str, Enum):
+    ATTR = "attr"
+    ATTRS = "attrs"
+    COORD = "coord"
+    COORDS = "coords"
+    DATA = "data"
+    FACTORY = "factory"
+    NAME = "name"
+    VARS = "vars"
+
+
 def to_attrs(specs: SpecFrame, /) -> dict[Any, Any]:
     """Convert given specification DataFrame to Xarray attributes."""
     attrs: dict[Any, Any] = {}
 
     for _, spec in specs.iterrows():
-        if spec.xarrayspecs_use == "attr":
+        if spec.xarrayspecs_use == Use.ATTR:
             attrs[spec.xarrayspecs_name] = spec.data
-        elif spec.xarrayspecs_use == "attrs":
+        elif spec.xarrayspecs_use == Use.ATTRS:
             for name, data in spec.data.items():
                 attrs[name] = data
 
@@ -55,14 +67,14 @@ def to_coords(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
             else:
                 return da.astype(dtype, copy=False)  # type: ignore
 
-        if spec.xarrayspecs_use == "coord":
+        if spec.xarrayspecs_use == Use.COORD:
             coords[spec.xarrayspecs_name] = factory(
                 data=spec.data,
                 dims=spec.xarrayspecs_dims,
                 name=spec.xarrayspecs_name,
                 attrs=spec.xarrayspecs_attrs,
             )
-        elif spec.xarrayspecs_use == "coords":
+        elif spec.xarrayspecs_use == Use.COORDS:
             for name, data in spec.data.items():
                 coords[name] = factory(
                     data=data,
@@ -123,7 +135,7 @@ def to_dims(obj: Any, /) -> tuple[Hashable, ...] | None:
 def to_factory(specs: SpecFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray factory."""
     for _, spec in specs[::-1].iterrows():
-        if spec.xarrayspecs_use == "factory":
+        if spec.xarrayspecs_use == Use.FACTORY:
             return spec.data
 
     return default
@@ -132,7 +144,7 @@ def to_factory(specs: SpecFrame, default: T, /) -> T:
 def to_name(specs: SpecFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray name."""
     for _, spec in specs[::-1].iterrows():
-        if spec.xarrayspecs_use == "name":
+        if spec.xarrayspecs_use == Use.NAME:
             return spec.data
 
     return default
@@ -142,19 +154,19 @@ def to_specframe(obj: Any, /) -> SpecFrame:
     """Convert given object to a specification DataFrame."""
     specs = from_annotated(
         obj,
-        default={
-            "xarrayspecs_attrs": None,
-            "xarrayspecs_dtype": None,
-            "xarrayspecs_dims": None,
-            "xarrayspecs_name": None,
-            "xarrayspecs_node": None,
-            "xarrayspecs_use": None,
-        },
+        default=dict(
+            xarrayspecs_attrs=None,
+            xarrayspecs_dtype=None,
+            xarrayspecs_dims=None,
+            xarrayspecs_name=None,
+            xarrayspecs_node=None,
+            xarrayspecs_use=None,
+        ),
     )
 
     index = specs.index.to_series()
-    specs["xarrayspecs_dims"] = specs["xarrayspecs_dims"].apply(to_dims)
-    specs["xarrayspecs_name"] = specs["xarrayspecs_name"].fillna(index)
+    specs["xarrayspecs_dims"] = specs.xarrayspecs_dims.apply(to_dims)
+    specs["xarrayspecs_name"] = specs.xarrayspecs_name.fillna(index)
     return specs
 
 
@@ -172,14 +184,14 @@ def to_vars(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
             else:
                 return da.astype(dtype, copy=False)  # type: ignore
 
-        if spec.xarrayspecs_use == "data":
+        if spec.xarrayspecs_use == Use.DATA:
             vars[spec.xarrayspecs_name] = factory(
                 data=spec.data,
                 dims=spec.xarrayspecs_dims,
                 name=spec.xarrayspecs_name,
                 attrs=spec.xarrayspecs_attrs,
             )
-        elif spec.xarrayspecs_use == "vars":
+        elif spec.xarrayspecs_use == Use.VARS:
             for name, data in spec.data.items():
                 vars[name] = factory(
                     data=data,
