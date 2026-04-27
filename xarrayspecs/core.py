@@ -8,7 +8,6 @@ __all__ = [
     "attrs",
     "dims",
     "dtype",
-    "factory",
     "name",
     "node",
     "use",
@@ -157,11 +156,6 @@ def dims(*args: Any) -> Spec:
 def dtype(dtype: Any | None, /) -> Spec:
     """Returns a type specification for Xarray data type."""
     return Spec(xarrayspecs_dtype=dtype)
-
-
-def factory(factory: Any | None, /) -> Spec:
-    """Returns a type specification for Xarray factory."""
-    return Spec(xarrayspecs_factory=factory)
 
 
 def name(name: Hashable | None, /) -> Spec:

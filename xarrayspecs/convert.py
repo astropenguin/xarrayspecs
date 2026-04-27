@@ -32,18 +32,11 @@ def to_attrs(specs: SpecFrame, /) -> dict[Any, Any]:
     attrs: dict[Any, Any] = {}
 
     for _, spec in specs.iterrows():
-
-        def factory(data: Any, /) -> Any:
-            if spec.xarrayspecs_factory is None:
-                return data
-            else:
-                return spec.xarrayspecs_factory(data)
-
         if spec.xarrayspecs_use == "attr":
-            attrs[spec.xarrayspecs_name] = factory(spec.data)
+            attrs[spec.xarrayspecs_name] = spec.data
         elif spec.xarrayspecs_use == "attrs":
             for name, data in spec.data.items():
-                attrs[name] = factory(data)
+                attrs[name] = data
 
     return attrs
 
@@ -55,10 +48,7 @@ def to_coords(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     for _, spec in specs.iterrows():
 
         def factory(*args: Any, **kwargs: Any) -> xr.DataArray:
-            if spec.xarrayspecs_factory is None:
-                da: Any = xr.DataArray(*args, **kwargs)
-            else:
-                da: Any = spec.xarrayspecs_factory(*args, **kwargs)
+            da: Any = xr.DataArray(*args, **kwargs)
 
             if spec.xarrayspecs_dtype is None:
                 return da
@@ -133,15 +123,8 @@ def to_dims(obj: Any, /) -> tuple[Hashable, ...] | None:
 def to_factory(specs: SpecFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray factory."""
     for _, spec in specs[::-1].iterrows():
-
-        def factory(data: Any, /) -> Any:
-            if spec.xarrayspecs_factory is None:
-                return data
-            else:
-                return spec.xarrayspecs_factory(data)
-
         if spec.xarrayspecs_use == "factory":
-            return factory(spec.data)
+            return spec.data
 
     return default
 
@@ -149,15 +132,8 @@ def to_factory(specs: SpecFrame, default: T, /) -> T:
 def to_name(specs: SpecFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray name."""
     for _, spec in specs[::-1].iterrows():
-
-        def factory(data: Any, /) -> Any:
-            if spec.xarrayspecs_factory is None:
-                return data
-            else:
-                return spec.xarrayspecs_factory(data)
-
         if spec.xarrayspecs_use == "name":
-            return factory(spec.data)
+            return spec.data
 
     return default
 
@@ -170,7 +146,6 @@ def to_specframe(obj: Any, /) -> SpecFrame:
             "xarrayspecs_attrs": None,
             "xarrayspecs_dtype": None,
             "xarrayspecs_dims": None,
-            "xarrayspecs_factory": None,
             "xarrayspecs_name": None,
             "xarrayspecs_node": None,
             "xarrayspecs_use": None,
@@ -190,10 +165,7 @@ def to_vars(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     for _, spec in specs.iterrows():
 
         def factory(*args: Any, **kwargs: Any) -> xr.DataArray:
-            if spec.xarrayspecs_factory is None:
-                da: Any = xr.DataArray(*args, **kwargs)
-            else:
-                da: Any = spec.xarrayspecs_factory(*args, **kwargs)
+            da: Any = xr.DataArray(*args, **kwargs)
 
             if spec.xarrayspecs_dtype is None:
                 return da

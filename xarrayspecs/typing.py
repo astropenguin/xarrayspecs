@@ -1,6 +1,5 @@
 __all__ = [
-    # type aliases for Xarray dims and (d)type
-    "Cast",
+    # type aliases for Xarray dims and dtype
     "Dims",
     "Dtype",
     "NDArray",
@@ -21,7 +20,7 @@ from typing import Annotated, Protocol, TypeVar
 
 # dependencies
 from typespecs import ITSELF
-from .core import dims, dtype, factory, use
+from .core import dims, dtype, use
 
 # type hints
 TAny = TypeVar("TAny")
@@ -33,8 +32,7 @@ class NDArray(Protocol[TDims, TDtype]):
     pass
 
 
-# type aliases for Xarray dims and (d)type
-Cast = Annotated[TAny, factory(ITSELF)]
+# type aliases for Xarray dims and dtype
 Dims = Annotated[TAny, dims(ITSELF)]
 Dtype = Annotated[TAny, dtype(ITSELF)]
 NDArray = NDArray[Dims[TDims], Dtype[TDtype]]  # type: ignore

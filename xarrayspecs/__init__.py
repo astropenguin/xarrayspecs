@@ -13,7 +13,6 @@ __all__ = [
     "attrs",
     "dims",
     "dtype",
-    "factory",
     "name",
     "node",
     "use",
