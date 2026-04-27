@@ -10,8 +10,8 @@ __all__ = [
     "Coord",
     "Coords",
     "Data",
+    "Factory",
     "Name",
-    "Type",
     "Vars",
 ]
 
@@ -21,7 +21,7 @@ from typing import Annotated, Protocol, TypeVar
 
 # dependencies
 from typespecs import ITSELF
-from .core import dims, dtype, type, use
+from .core import dims, dtype, factory, use
 
 # type hints
 TAny = TypeVar("TAny")
@@ -34,7 +34,7 @@ class NDArray(Protocol[TDims, TDtype]):
 
 
 # type aliases for Xarray dims and (d)type
-Cast = Annotated[TAny, type(ITSELF)]
+Cast = Annotated[TAny, factory(ITSELF)]
 Dims = Annotated[TAny, dims(ITSELF)]
 Dtype = Annotated[TAny, dtype(ITSELF)]
 NDArray = NDArray[Dims[TDims], Dtype[TDtype]]  # type: ignore
@@ -45,6 +45,6 @@ Attrs = Annotated[Mapping[Hashable, TAny], use("attrs")]
 Coord = Annotated[NDArray[TDims, TDtype], use("coord")]
 Coords = Annotated[Mapping[Hashable, NDArray[TDims, TDtype]], use("coords")]
 Data = Annotated[NDArray[TDims, TDtype], use("data")]
+Factory = Annotated[TAny, use("factory")]
 Name = Annotated[TAny, use("name")]
-Type = Annotated[TAny, use("type")]
 Vars = Annotated[Mapping[Hashable, NDArray[TDims, TDtype]], use("vars")]

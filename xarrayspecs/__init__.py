@@ -13,9 +13,9 @@ __all__ = [
     "attrs",
     "dims",
     "dtype",
+    "factory",
     "name",
     "node",
-    "type",
     "use",
 ]
 __version__ = "0.6.0"

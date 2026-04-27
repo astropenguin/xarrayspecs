@@ -8,9 +8,9 @@ __all__ = [
     "attrs",
     "dims",
     "dtype",
+    "factory",
     "name",
     "node",
-    "type",
     "use",
 ]
 
@@ -28,11 +28,11 @@ from .convert import to_dataarray, to_dataset, to_datatree, to_specframe
 # type hints
 P = ParamSpec("P")
 T = TypeVar("T", bound=xr.DataArray | xr.Dataset | xr.DataTree)
-Use = Literal["attr", "attrs", "coord", "coords", "data", "name", "type", "vars"]
+Use = Literal["attr", "attrs", "coord", "coords", "data", "factory", "name", "vars"]
 
 
-class HasType(Protocol[P, T]):
-    type: Callable[..., T]
+class HasFactory(Protocol[P, T]):
+    factory: Callable[..., T]
 
     def __init__(self, *args: P.args, **kwargs: P.kwargs) -> None: ...
 
@@ -47,7 +47,7 @@ class AsDataArray:
 
     @overload
     @classmethod
-    def new(cls: Type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
+    def new(cls: Type[HasFactory[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @overload
     @classmethod
     def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataArray: ...
@@ -63,7 +63,7 @@ class AsDataset:
 
     @overload
     @classmethod
-    def new(cls: Type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
+    def new(cls: Type[HasFactory[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @overload
     @classmethod
     def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.Dataset: ...
@@ -79,7 +79,7 @@ class AsDataTree:
 
     @overload
     @classmethod
-    def new(cls: Type[HasType[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
+    def new(cls: Type[HasFactory[P, T]], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @overload
     @classmethod
     def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataTree: ...
@@ -91,7 +91,7 @@ class AsDataTree:
 
 
 @overload
-def asdataarray(obj: HasType[P, T], /) -> T: ...  # type: ignore
+def asdataarray(obj: HasFactory[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdataarray(obj: Other[P], /) -> xr.DataArray: ...
 
@@ -102,7 +102,7 @@ def asdataarray(obj: Any, /) -> Any:
 
 
 @overload
-def asdataset(obj: HasType[P, T], /) -> T: ...  # type: ignore
+def asdataset(obj: HasFactory[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdataset(obj: Other[P], /) -> xr.Dataset: ...
 
@@ -113,7 +113,7 @@ def asdataset(obj: Any, /) -> Any:
 
 
 @overload
-def asdatatree(obj: HasType[P, T], /) -> T: ...  # type: ignore
+def asdatatree(obj: HasFactory[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdatatree(obj: Other[P], /) -> xr.DataTree: ...
 
@@ -159,6 +159,11 @@ def dtype(dtype: Any | None, /) -> Spec:
     return Spec(xarrayspecs_dtype=dtype)
 
 
+def factory(factory: Any | None, /) -> Spec:
+    """Returns a type specification for Xarray factory."""
+    return Spec(xarrayspecs_factory=factory)
+
+
 def name(name: Hashable | None, /) -> Spec:
     """Returns a type specification for Xarray name."""
     return Spec(xarrayspecs_name=name)
@@ -167,11 +172,6 @@ def name(name: Hashable | None, /) -> Spec:
 def node(node: str | None, /) -> Spec:
     """Returns a type specification for Xarray node."""
     return Spec(xarrayspecs_node=node)
-
-
-def type(type: Any | None, /) -> Spec:
-    """Returns a type specification for Xarray type."""
-    return Spec(xarrayspecs_type=type)
 
 
 def use(use: Use | None, /) -> Spec:
