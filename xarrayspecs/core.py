@@ -132,10 +132,10 @@ def attrs(**attrs: Any) -> Spec: ...
 def attrs(*args: Any, **kwargs: Any) -> Spec:
     """Returns a type specification for Xarray attributes."""
     if len(args) == 0:
-        return Spec(xarray_attrs=kwargs)
+        return Spec(xarrayspecs_attrs=kwargs)
 
     if len(args) == 1 and not kwargs:
-        return Spec(xarray_attrs=args[0])
+        return Spec(xarrayspecs_attrs=args[0])
 
     raise ValueError("Cannot create type specification.")
 
@@ -149,31 +149,31 @@ def dims(*dims: Hashable) -> Spec: ...
 def dims(*args: Any) -> Spec:
     """Returns a type specification for Xarray dimensions."""
     if len(args) == 1:
-        return Spec(xarray_dims=args[0])
+        return Spec(xarrayspecs_dims=args[0])
     else:
-        return Spec(xarray_dims=args)
+        return Spec(xarrayspecs_dims=args)
 
 
 def dtype(dtype: Any | None, /) -> Spec:
     """Returns a type specification for Xarray data type."""
-    return Spec(xarray_dtype=dtype)
+    return Spec(xarrayspecs_dtype=dtype)
 
 
 def name(name: Hashable | None, /) -> Spec:
     """Returns a type specification for Xarray name."""
-    return Spec(xarray_name=name)
+    return Spec(xarrayspecs_name=name)
 
 
 def node(node: str | None, /) -> Spec:
     """Returns a type specification for Xarray node."""
-    return Spec(xarray_node=node)
+    return Spec(xarrayspecs_node=node)
 
 
 def type(type: Any | None, /) -> Spec:
     """Returns a type specification for Xarray type."""
-    return Spec(xarray_type=type)
+    return Spec(xarrayspecs_type=type)
 
 
 def use(use: Use | None, /) -> Spec:
     """Returns a type specification for Xarray use."""
-    return Spec(xarray_use=use)
+    return Spec(xarrayspecs_use=use)

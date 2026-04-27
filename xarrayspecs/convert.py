@@ -34,14 +34,14 @@ def to_attrs(specs: SpecFrame, /) -> dict[Any, Any]:
     for _, spec in specs.iterrows():
 
         def type_(data: Any, /) -> Any:
-            if spec.xarray_type is None:
+            if spec.xarrayspecs_type is None:
                 return data
             else:
-                return spec.xarray_type(data)
+                return spec.xarrayspecs_type(data)
 
-        if spec.xarray_use == "attr":
-            attrs[spec.xarray_name] = type_(spec.data)
-        elif spec.xarray_use == "attrs":
+        if spec.xarrayspecs_use == "attr":
+            attrs[spec.xarrayspecs_name] = type_(spec.data)
+        elif spec.xarrayspecs_use == "attrs":
             for name, data in spec.data.items():
                 attrs[name] = type_(data)
 
@@ -55,30 +55,30 @@ def to_coords(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     for _, spec in specs.iterrows():
 
         def type_(*args: Any, **kwargs: Any) -> xr.DataArray:
-            if spec.xarray_type is None:
+            if spec.xarrayspecs_type is None:
                 da: Any = xr.DataArray(*args, **kwargs)
             else:
-                da: Any = spec.xarray_type(*args, **kwargs)
+                da: Any = spec.xarrayspecs_type(*args, **kwargs)
 
-            if spec.xarray_dtype is None:
+            if spec.xarrayspecs_dtype is None:
                 return da
             else:
-                return da.astype(spec.xarray_dtype, copy=False)
+                return da.astype(spec.xarrayspecs_dtype, copy=False)
 
-        if spec.xarray_use == "coord":
-            coords[spec.xarray_name] = type_(
+        if spec.xarrayspecs_use == "coord":
+            coords[spec.xarrayspecs_name] = type_(
                 data=spec.data,
-                dims=spec.xarray_dims,
-                name=spec.xarray_name,
-                attrs=spec.xarray_attrs,
+                dims=spec.xarrayspecs_dims,
+                name=spec.xarrayspecs_name,
+                attrs=spec.xarrayspecs_attrs,
             )
-        elif spec.xarray_use == "coords":
+        elif spec.xarrayspecs_use == "coords":
             for name, data in spec.data.items():
                 coords[name] = type_(
                     data=data,
-                    dims=spec.xarray_dims,
+                    dims=spec.xarrayspecs_dims,
                     name=name,
-                    attrs=spec.xarray_attrs,
+                    attrs=spec.xarrayspecs_attrs,
                 )
 
     return coords
@@ -108,7 +108,7 @@ def to_datatree(specs: SpecFrame, /) -> xr.DataTree:
     """Convert given specification DataFrame to an Xarray DataTree."""
     nodes: dict[str, xr.Dataset] = {}
 
-    for name, group in specs.groupby("xarray_node"):
+    for name, group in specs.groupby("xarrayspecs_node"):
         nodes[name] = to_dataset(group)  # type: ignore
 
     dt = to_type(specs, xr.DataTree).from_dict(nodes)  # type: ignore
@@ -135,12 +135,12 @@ def to_name(specs: SpecFrame, default: T, /) -> T:
     for _, spec in specs[::-1].iterrows():
 
         def type_(data: Any, /) -> Any:
-            if spec.xarray_type is None:
+            if spec.xarrayspecs_type is None:
                 return data
             else:
-                return spec.xarray_type(data)
+                return spec.xarrayspecs_type(data)
 
-        if spec.xarray_use == "name":
+        if spec.xarrayspecs_use == "name":
             return type_(spec.data)
 
     return default
@@ -151,19 +151,19 @@ def to_specframe(obj: Any, /) -> SpecFrame:
     specs = from_annotated(
         obj,
         default={
-            "xarray_attrs": None,
-            "xarray_dtype": None,
-            "xarray_dims": None,
-            "xarray_name": None,
-            "xarray_node": None,
-            "xarray_type": None,
-            "xarray_use": None,
+            "xarrayspecs_attrs": None,
+            "xarrayspecs_dtype": None,
+            "xarrayspecs_dims": None,
+            "xarrayspecs_name": None,
+            "xarrayspecs_node": None,
+            "xarrayspecs_type": None,
+            "xarrayspecs_use": None,
         },
     )
 
     index = specs.index.to_series()
-    specs["xarray_dims"] = specs["xarray_dims"].apply(to_dims)
-    specs["xarray_name"] = specs["xarray_name"].fillna(index)
+    specs["xarrayspecs_dims"] = specs["xarrayspecs_dims"].apply(to_dims)
+    specs["xarrayspecs_name"] = specs["xarrayspecs_name"].fillna(index)
     return specs
 
 
@@ -172,12 +172,12 @@ def to_type(specs: SpecFrame, default: T, /) -> T:
     for _, spec in specs[::-1].iterrows():
 
         def type_(data: Any, /) -> Any:
-            if spec.xarray_type is None:
+            if spec.xarrayspecs_type is None:
                 return data
             else:
-                return spec.xarray_type(data)
+                return spec.xarrayspecs_type(data)
 
-        if spec.xarray_use == "type":
+        if spec.xarrayspecs_use == "type":
             return type_(spec.data)
 
     return default
@@ -190,30 +190,30 @@ def to_vars(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     for _, spec in specs.iterrows():
 
         def type_(*args: Any, **kwargs: Any) -> xr.DataArray:
-            if spec.xarray_type is None:
+            if spec.xarrayspecs_type is None:
                 da: Any = xr.DataArray(*args, **kwargs)
             else:
-                da: Any = spec.xarray_type(*args, **kwargs)
+                da: Any = spec.xarrayspecs_type(*args, **kwargs)
 
-            if spec.xarray_dtype is None:
+            if spec.xarrayspecs_dtype is None:
                 return da
             else:
-                return da.astype(spec.xarray_dtype, copy=False)
+                return da.astype(spec.xarrayspecs_dtype, copy=False)
 
-        if spec.xarray_use == "data":
-            vars[spec.xarray_name] = type_(
+        if spec.xarrayspecs_use == "data":
+            vars[spec.xarrayspecs_name] = type_(
                 data=spec.data,
-                dims=spec.xarray_dims,
-                name=spec.xarray_name,
-                attrs=spec.xarray_attrs,
+                dims=spec.xarrayspecs_dims,
+                name=spec.xarrayspecs_name,
+                attrs=spec.xarrayspecs_attrs,
             )
-        elif spec.xarray_use == "vars":
+        elif spec.xarrayspecs_use == "vars":
             for name, data in spec.data.items():
                 vars[name] = type_(
                     data=data,
-                    dims=spec.xarray_dims,
+                    dims=spec.xarrayspecs_dims,
                     name=name,
-                    attrs=spec.xarray_attrs,
+                    attrs=spec.xarrayspecs_attrs,
                 )
 
     return vars
