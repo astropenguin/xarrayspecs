@@ -6,7 +6,6 @@ from typing import Annotated, Any, Literal
 import numpy as np
 import xarray as xr
 import xarrayspecs as xs
-import xarrayspecs.typing as xt
 from numpy.typing import NDArray
 
 # type hints
@@ -43,18 +42,18 @@ class Temp0(xs.AsDataArray):
 @dataclass
 class Temp1(xs.AsDataArray):
     temp: Annotated[
-        xt.Data[tuple[Lon, Lat], np.float64],
+        xs.Data[tuple[Lon, Lat], np.float64],
         xs.attrs(long_name="Temperature", units="K"),
     ]
     lat: Annotated[
-        xt.Coord[Lat, np.float64],
+        xs.Coord[Lat, np.float64],
         xs.attrs(long_name="Latitude", units="deg"),
     ]
     lon: Annotated[
-        xt.Coord[Lon, np.float64],
+        xs.Coord[Lon, np.float64],
         xs.attrs(long_name="Longitude", units="deg"),
     ]
-    date: xt.Attr[str]
+    date: xs.Attr[str]
 
 
 def test_asdataarray() -> None:
