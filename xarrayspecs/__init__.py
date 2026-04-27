@@ -2,6 +2,7 @@ __all__ = [
     # submodules
     "api",
     "convert",
+    "typing",
     # aliases
     "AsDataArray",
     "AsDataset",
@@ -20,5 +21,5 @@ __all__ = [
 __version__ = "0.6.0"
 
 # dependencies
-from . import api, convert
+from . import api, convert, typing
 from .api import *

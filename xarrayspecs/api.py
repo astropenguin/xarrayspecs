@@ -169,7 +169,7 @@ def node(node: str | None, /) -> Spec:
     return Spec(xarray_node=node)
 
 
-def type(type: Callable[..., Any] | None, /) -> Spec:
+def type(type: Any | None, /) -> Spec:
     """Returns a type specification for Xarray type."""
     return Spec(xarray_type=type)
 
