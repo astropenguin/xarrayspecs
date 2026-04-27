@@ -3,7 +3,7 @@ __all__ = [
     "convert",
     "core",
     "typing",
-    # aliases
+    # aliases (core)
     "AsDataArray",
     "AsDataset",
     "AsDataTree",
@@ -16,9 +16,22 @@ __all__ = [
     "name",
     "node",
     "use",
+    # aliases (typing)
+    "ArrayLike",
+    "Dims",
+    "Dtype",
+    "Attr",
+    "Attrs",
+    "Coord",
+    "Coords",
+    "Data",
+    "Factory",
+    "Name",
+    "Vars",
 ]
 __version__ = "0.6.0"
 
 # dependencies
 from . import convert, core, typing
 from .core import *
+from .typing import *
