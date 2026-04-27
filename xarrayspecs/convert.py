@@ -48,12 +48,12 @@ def to_coords(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     for _, spec in specs.iterrows():
 
         def factory(*args: Any, **kwargs: Any) -> xr.DataArray:
-            da: Any = xr.DataArray(*args, **kwargs)
+            da = xr.DataArray(*args, **kwargs)
 
-            if spec.xarrayspecs_dtype is None:
+            if (dtype := spec.xarrayspecs_dtype) is None:
                 return da
             else:
-                return da.astype(spec.xarrayspecs_dtype, copy=False)
+                return da.astype(dtype, copy=False)  # type: ignore
 
         if spec.xarrayspecs_use == "coord":
             coords[spec.xarrayspecs_name] = factory(
@@ -165,12 +165,12 @@ def to_vars(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     for _, spec in specs.iterrows():
 
         def factory(*args: Any, **kwargs: Any) -> xr.DataArray:
-            da: Any = xr.DataArray(*args, **kwargs)
+            da = xr.DataArray(*args, **kwargs)
 
-            if spec.xarrayspecs_dtype is None:
+            if (dtype := spec.xarrayspecs_dtype) is None:
                 return da
             else:
-                return da.astype(spec.xarrayspecs_dtype, copy=False)
+                return da.astype(dtype, copy=False)  # type: ignore
 
         if spec.xarrayspecs_use == "data":
             vars[spec.xarrayspecs_name] = factory(
