@@ -1,7 +1,7 @@
 author = "Akio Taniguchi"
 copyright = "2026 Akio Taniguchi"
 project = "Xarrayspecs"
-release = version = "0.6.0"
+release = version = "0.7.0"
 
 extensions = [
     "myst_parser",

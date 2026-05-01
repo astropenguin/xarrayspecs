@@ -15,15 +15,15 @@ __all__ = [
 ]
 
 # standard library
-from collections.abc import Hashable, Mapping
+from collections.abc import Callable, Hashable, Mapping
 from typing import Annotated, Protocol, TypeVar
 
 # dependencies
-from typespecs import ITSELF
+import typespecs as ts
 from .core import dims, dtype, use
 
 # type hints
-TAny = TypeVar("TAny")
+T = TypeVar("T")
 TDims = TypeVar("TDims", covariant=True)
 TDtype = TypeVar("TDtype", covariant=True)
 
@@ -33,16 +33,16 @@ class ArrayLike(Protocol[TDims, TDtype]):
 
 
 # type aliases for Xarray dims and dtype
-Dims = Annotated[TAny, dims(ITSELF)]
-Dtype = Annotated[TAny, dtype(ITSELF)]
+Dims = Annotated[T, dims(ts.ITSELF)]
+Dtype = Annotated[T, dtype(ts.ITSELF)]
 ArrayLike = ArrayLike[Dims[TDims], Dtype[TDtype]]  # type: ignore
 
 # type aliases for Xarray use
-Attr = Annotated[TAny, use("attr")]
-Attrs = Annotated[Mapping[Hashable, TAny], use("attrs")]
+Attr = Annotated[T, use("attr")]
+Attrs = Annotated[Mapping[Hashable, T], use("attrs")]
 Coord = Annotated[ArrayLike[TDims, TDtype], use("coord")]
 Coords = Annotated[Mapping[Hashable, ArrayLike[TDims, TDtype]], use("coords")]
 Data = Annotated[ArrayLike[TDims, TDtype], use("data")]
-Factory = Annotated[TAny, use("factory")]
-Name = Annotated[TAny, use("name")]
+Factory = Annotated[Callable[..., T], use("factory")]
+Name = Annotated[T, use("name")]
 Vars = Annotated[Mapping[Hashable, ArrayLike[TDims, TDtype]], use("vars")]

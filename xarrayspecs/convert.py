@@ -5,7 +5,6 @@ __all__ = [
     "to_dataarray",
     "to_dataset",
     "to_datatree",
-    "to_dims",
     "to_factory",
     "to_name",
     "to_specframe",
@@ -18,9 +17,9 @@ from enum import Enum
 from typing import Any, TypeVar
 
 # dependencies
+import typespecs as ts
 import xarray as xr
 from pandas.api.types import is_scalar
-from typespecs import SpecFrame, from_annotated
 from typespecs.typing import is_literal
 from typing_extensions import get_args, get_origin
 
@@ -39,7 +38,7 @@ class Use(str, Enum):
     VARS = "vars"
 
 
-def to_attrs(specs: SpecFrame, /) -> dict[Any, Any]:
+def to_attrs(specs: ts.SpecFrame, /) -> dict[Any, Any]:
     """Convert given specification DataFrame to Xarray attributes."""
     attrs: dict[Any, Any] = {}
 
@@ -53,7 +52,7 @@ def to_attrs(specs: SpecFrame, /) -> dict[Any, Any]:
     return attrs
 
 
-def to_coords(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
+def to_coords(specs: ts.SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     """Convert given specification DataFrame to Xarray coordinates."""
     coords: dict[Hashable, xr.DataArray] = {}
 
@@ -86,12 +85,12 @@ def to_coords(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     return coords
 
 
-def to_data(specs: SpecFrame, /) -> xr.DataArray:
+def to_data(specs: ts.SpecFrame, /) -> xr.DataArray:
     """Convert given specification DataFrame to an Xarray data."""
     return next(reversed(to_vars(specs).values()))
 
 
-def to_dataarray(specs: SpecFrame, /) -> xr.DataArray:
+def to_dataarray(specs: ts.SpecFrame, /) -> xr.DataArray:
     """Convert given specification DataFrame to an Xarray DataArray."""
     da = to_factory(specs, xr.DataArray)(to_data(specs), to_coords(specs))
     da.attrs.update(to_attrs(specs))
@@ -99,14 +98,14 @@ def to_dataarray(specs: SpecFrame, /) -> xr.DataArray:
     return da
 
 
-def to_dataset(specs: SpecFrame, /) -> xr.Dataset:
+def to_dataset(specs: ts.SpecFrame, /) -> xr.Dataset:
     """Convert given specification DataFrame to an Xarray Dataset."""
     ds = to_factory(specs, xr.Dataset)(to_vars(specs), to_coords(specs))
     ds.attrs.update(to_attrs(specs))
     return ds
 
 
-def to_datatree(specs: SpecFrame, /) -> xr.DataTree:
+def to_datatree(specs: ts.SpecFrame, /) -> xr.DataTree:
     """Convert given specification DataFrame to an Xarray DataTree."""
     nodes: dict[str, xr.Dataset] = {}
 
@@ -132,7 +131,12 @@ def to_dims(obj: Any, /) -> tuple[Hashable, ...] | None:
     return tuple(get_args(v)[0] if is_literal(v) else v for v in obj)
 
 
-def to_factory(specs: SpecFrame, default: T, /) -> T:
+def to_dtype(obj: Any, /) -> Any | None:
+    """Convert given object to an Xarray dtype."""
+    return None if obj is Any else obj
+
+
+def to_factory(specs: ts.SpecFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray factory."""
     for _, spec in specs[::-1].iterrows():
         if spec.xarrayspecs_use == Use.FACTORY:
@@ -141,7 +145,7 @@ def to_factory(specs: SpecFrame, default: T, /) -> T:
     return default
 
 
-def to_name(specs: SpecFrame, default: T, /) -> T:
+def to_name(specs: ts.SpecFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray name."""
     for _, spec in specs[::-1].iterrows():
         if spec.xarrayspecs_use == Use.NAME:
@@ -150,9 +154,9 @@ def to_name(specs: SpecFrame, default: T, /) -> T:
     return default
 
 
-def to_specframe(obj: Any, /) -> SpecFrame:
-    """Convert given object to a specification DataFrame."""
-    specs = from_annotated(
+def to_specframe(obj: Any, /) -> ts.SpecFrame:
+    """Convert given object to a specification DataFrame for Xarray."""
+    specs = ts.from_annotated(
         obj,
         default=dict(
             xarrayspecs_attrs=None,
@@ -166,11 +170,12 @@ def to_specframe(obj: Any, /) -> SpecFrame:
 
     index = specs.index.to_series()
     specs["xarrayspecs_dims"] = specs.xarrayspecs_dims.apply(to_dims)
+    specs["xarrayspecs_dtype"] = specs.xarrayspecs_dtype.apply(to_dtype)
     specs["xarrayspecs_name"] = specs.xarrayspecs_name.fillna(index)
     return specs
 
 
-def to_vars(specs: SpecFrame, /) -> dict[Hashable, xr.DataArray]:
+def to_vars(specs: ts.SpecFrame, /) -> dict[Hashable, xr.DataArray]:
     """Convert given specification DataFrame to Xarray data variables."""
     vars: dict[Hashable, xr.DataArray] = {}
 
