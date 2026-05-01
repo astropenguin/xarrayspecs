@@ -1,6 +1,6 @@
 [project]
 name = "xarrayspecs"
-version = "0.6.0"
+version = "0.7.0"
 description = "Xarray specifications by type hints"
 readme = "README.md"
 keywords = [
