@@ -19,8 +19,9 @@ from collections.abc import Callable, Hashable, Iterable, Mapping
 from typing import Any, Literal, Protocol, TypeVar, overload
 
 # dependencies
+import typespecs as ts
 import xarray as xr
-from typespecs import Spec
+from readonlydict import Tuples
 from typing_extensions import ParamSpec
 from .convert import to_dataarray, to_dataset, to_datatree, to_specframe
 
@@ -123,51 +124,49 @@ def asdatatree(obj: Any, /) -> Any:
 
 
 @overload
-def attrs(attrs: Mapping[Any, Any] | None, /) -> Spec: ...
+def attrs(**kwargs: Any) -> ts.Spec: ...
 @overload
-def attrs(**attrs: Any) -> Spec: ...
+def attrs(mapping: Mapping[str, Any], /, **kwargs: Any) -> ts.Spec: ...
+@overload
+def attrs(iterable: Tuples[str, Any], /, **kwargs: Any) -> ts.Spec: ...
 
 
-def attrs(*args: Any, **kwargs: Any) -> Spec:
+def attrs(*args: Any, **kwargs: Any) -> ts.Spec:
     """Returns a type specification for Xarray attributes."""
-    if len(args) == 0:
-        return Spec(xarrayspecs_attrs=kwargs)
-
-    if len(args) == 1 and not kwargs:
-        return Spec(xarrayspecs_attrs=args[0])
-
-    raise ValueError("Cannot create type specification.")
+    return ts.Spec(xarrayspecs_attrs=dict(*args, **kwargs))
 
 
 @overload
-def dims(dims: Iterable[Hashable] | None, /) -> Spec: ...
+def dims() -> ts.Spec: ...
 @overload
-def dims(*dims: Hashable) -> Spec: ...
+def dims(iterable: Iterable[Hashable], /) -> ts.Spec: ...
+@overload
+def dims(*hashable: Hashable) -> ts.Spec: ...
 
 
-def dims(*args: Any) -> Spec:
+def dims(*args: Any) -> ts.Spec:
     """Returns a type specification for Xarray dimensions."""
     if len(args) == 1:
-        return Spec(xarrayspecs_dims=args[0])
+        return ts.Spec(xarrayspecs_dims=args[0])
     else:
-        return Spec(xarrayspecs_dims=args)
+        return ts.Spec(xarrayspecs_dims=args)
 
 
-def dtype(dtype: Any | None, /) -> Spec:
+def dtype(dtype: Any | None = None, /) -> ts.Spec:
     """Returns a type specification for Xarray data type."""
-    return Spec(xarrayspecs_dtype=dtype)
+    return ts.Spec(xarrayspecs_dtype=dtype)
 
 
-def name(name: Hashable | None, /) -> Spec:
+def name(name: Hashable | None = None, /) -> ts.Spec:
     """Returns a type specification for Xarray name."""
-    return Spec(xarrayspecs_name=name)
+    return ts.Spec(xarrayspecs_name=name)
 
 
-def node(node: str | None, /) -> Spec:
+def node(node: str | None = None, /) -> ts.Spec:
     """Returns a type specification for Xarray node."""
-    return Spec(xarrayspecs_node=node)
+    return ts.Spec(xarrayspecs_node=node)
 
 
-def use(use: Use | None, /) -> Spec:
+def use(use: Use | None = None, /) -> ts.Spec:
     """Returns a type specification for Xarray use."""
-    return Spec(xarrayspecs_use=use)
+    return ts.Spec(xarrayspecs_use=use)
