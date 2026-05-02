@@ -28,7 +28,16 @@ from .convert import to_dataarray, to_dataset, to_datatree, to_specframe
 # type hints
 P = ParamSpec("P")
 T = TypeVar("T", bound=xr.DataArray | xr.Dataset | xr.DataTree)
-Use = Literal["attr", "attrs", "coord", "coords", "data", "factory", "name", "vars"]
+Use = Literal[
+    "attr",
+    "attrs",
+    "coord",
+    "coords",
+    "data",
+    "data_vars",
+    "factory",
+    "name",
+]
 
 
 class HasFactory(Protocol[P, T]):

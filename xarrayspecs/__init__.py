@@ -25,9 +25,9 @@ __all__ = [
     "Coord",
     "Coords",
     "Data",
+    "DataVars",
     "Factory",
     "Name",
-    "Vars",
 ]
 __version__ = "0.7.0"
 
