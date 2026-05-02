@@ -9,9 +9,9 @@ __all__ = [
     "Coord",
     "Coords",
     "Data",
+    "DataVars",
     "Factory",
     "Name",
-    "Vars",
 ]
 
 # standard library
@@ -43,6 +43,6 @@ Attrs = Annotated[Mapping[Hashable, T], use("attrs")]
 Coord = Annotated[ArrayLike[TDims, TDtype], use("coord")]
 Coords = Annotated[Mapping[Hashable, ArrayLike[TDims, TDtype]], use("coords")]
 Data = Annotated[ArrayLike[TDims, TDtype], use("data")]
+DataVars = Annotated[Mapping[Hashable, ArrayLike[TDims, TDtype]], use("data_vars")]
 Factory = Annotated[Callable[..., T], use("factory")]
 Name = Annotated[T, use("name")]
-Vars = Annotated[Mapping[Hashable, ArrayLike[TDims, TDtype]], use("vars")]

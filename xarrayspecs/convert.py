@@ -36,9 +36,9 @@ class Use(str, Enum):
     COORD = "coord"
     COORDS = "coords"
     DATA = "data"
+    DATA_VARS = "data_vars"
     FACTORY = "factory"
     NAME = "name"
-    VARS = "vars"
 
 
 def astype(obj: Any, dtype: Dtype, /) -> Any:
@@ -83,7 +83,7 @@ def to_attrs(specs: ts.SpecFrame, /) -> Attrs:
 def to_dataarray(specs: ts.SpecFrame, /) -> xr.DataArray:
     """Convert given specification DataFrame to an Xarray DataArray."""
     coords = to_variables(specs, Use.COORD, Use.COORDS)
-    data_vars = to_variables(specs, Use.DATA, Use.VARS)
+    data_vars = to_variables(specs, Use.DATA, Use.DATA_VARS)
     name, (dims, data, attrs) = next(reversed(data_vars.items()))
 
     da = to_factory(specs, xr.DataArray)(data, coords, dims, name, attrs)
@@ -95,7 +95,7 @@ def to_dataarray(specs: ts.SpecFrame, /) -> xr.DataArray:
 def to_dataset(specs: ts.SpecFrame, /) -> xr.Dataset:
     """Convert given specification DataFrame to an Xarray Dataset."""
     coords = to_variables(specs, Use.COORD, Use.COORDS)
-    data_vars = to_variables(specs, Use.DATA, Use.VARS)
+    data_vars = to_variables(specs, Use.DATA, Use.DATA_VARS)
 
     ds = to_factory(specs, xr.Dataset)(data_vars, coords)
     ds.attrs.update(to_attrs(specs))
