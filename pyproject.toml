@@ -15,7 +15,7 @@ requires-python = ">=3.10,<4.0"
 dependencies = [
     "numpy>=2",
     "readonlydict>=1",
-    "typespecs>=3",
+    "typespecs>=6",
     "xarray>=2025",
 ]
 classifiers = [
