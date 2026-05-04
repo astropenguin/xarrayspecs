@@ -7,10 +7,15 @@ import numpy as np
 import xarray as xr
 import xarrayspecs as xs
 from numpy.typing import NDArray
+from pydantic import BaseModel
 
 # type hints
 Lat = Literal["lat"]
 Lon = Literal["lon"]
+
+
+class CustomArray(xr.DataArray):
+    __slots__ = ()
 
 
 @dataclass
@@ -37,6 +42,7 @@ class Temp0(xs.AsDataArray):
         xs.attrs(long_name="Longitude", units="deg"),
     ]
     date: Annotated[str, xs.use("attr")]
+    factory: Annotated[type[CustomArray], xs.use("factory")] = CustomArray
 
 
 @dataclass
@@ -54,6 +60,24 @@ class Temp1(xs.AsDataArray):
         xs.attrs(long_name="Longitude", units="deg"),
     ]
     date: xs.Attr[str]
+    factory: xs.Factory[CustomArray] = CustomArray
+
+
+class Temp2(BaseModel, xs.AsDataArray):
+    temp: Annotated[
+        xs.Data[tuple[Lon, Lat], np.float64],
+        xs.attrs(long_name="Temperature", units="K"),
+    ]
+    lat: Annotated[
+        xs.Coord[Lat, np.float64],
+        xs.attrs(long_name="Latitude", units="deg"),
+    ]
+    lon: Annotated[
+        xs.Coord[Lon, np.float64],
+        xs.attrs(long_name="Longitude", units="deg"),
+    ]
+    date: xs.Attr[str]
+    factory: xs.Factory[CustomArray] = CustomArray
 
 
 def test_asdataarray() -> None:
@@ -71,4 +95,12 @@ def test_asdataarray() -> None:
         np.array([2, 3]),
         "2026-03-01",
     )
+    np.random.seed(0)
+    da_2 = Temp2.new(
+        temp=np.random.uniform(273, 293, size=(2, 2)),
+        lat=np.array([0, 1]),
+        lon=np.array([2, 3]),
+        date="2026-03-01",
+    )
     xr.testing.assert_equal(da_0, da_1)  # type: ignore
+    xr.testing.assert_equal(da_0, da_2)  # type: ignore

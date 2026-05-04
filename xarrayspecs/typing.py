@@ -16,7 +16,7 @@ __all__ = [
 
 # standard library
 from collections.abc import Callable, Hashable, Mapping
-from typing import Annotated, Protocol, TypeVar
+from typing import TYPE_CHECKING, Annotated, Any, Protocol, TypeVar
 
 # dependencies
 import typespecs as ts
@@ -29,7 +29,14 @@ TDtype = TypeVar("TDtype", covariant=True)
 
 
 class ArrayLike(Protocol[TDims, TDtype]):
-    pass
+    if not TYPE_CHECKING:
+
+        @classmethod
+        def __get_pydantic_core_schema__(cls, *args: Any, **kwargs: Any) -> Any:
+            """Returns a Pydantic core schema that matches any data."""
+            from pydantic_core import core_schema
+
+            return core_schema.any_schema()
 
 
 # type aliases for Xarray dims and dtype

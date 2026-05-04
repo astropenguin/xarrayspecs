@@ -15,7 +15,7 @@ requires-python = ">=3.10,<4.0"
 dependencies = [
     "numpy>=2",
     "readonlydict>=1",
-    "typespecs>=3",
+    "typespecs>=6",
     "xarray>=2025",
 ]
 classifiers = [
@@ -49,6 +49,7 @@ dev = [
     "ipython>=8,<10",
     "myst-parser>=4,<6",
     "pandas-stubs>=2",
+    "pydantic>=2,<3",
     "pydata-sphinx-theme>=0.16,<1.0",
     "pyright>=1,<2",
     "pytest>=8,<10",
