@@ -16,6 +16,7 @@ from typing import Any, TypeVar
 
 # dependencies
 import numpy as np
+import pandas as pd
 import typespecs as ts
 import xarray as xr
 from pandas.api.types import is_scalar
@@ -66,7 +67,7 @@ def dims(obj: Any, /) -> Dims:
     return tuple(get_args(v)[0] if is_literal(v) else v for v in obj)
 
 
-def to_attrs(specs: ts.SpecFrame, /) -> Attrs:
+def to_attrs(specs: pd.DataFrame, /) -> Attrs:
     """Convert given specification DataFrame to Xarray attributes."""
     attrs: Attrs = {}
 
@@ -80,7 +81,7 @@ def to_attrs(specs: ts.SpecFrame, /) -> Attrs:
     return attrs
 
 
-def to_dataarray(specs: ts.SpecFrame, /) -> xr.DataArray:
+def to_dataarray(specs: pd.DataFrame, /) -> xr.DataArray:
     """Convert given specification DataFrame to an Xarray DataArray."""
     coords = to_variables(specs, Use.COORD, Use.COORDS)
     data_vars = to_variables(specs, Use.DATA, Use.DATA_VARS)
@@ -92,7 +93,7 @@ def to_dataarray(specs: ts.SpecFrame, /) -> xr.DataArray:
     return da
 
 
-def to_dataset(specs: ts.SpecFrame, /) -> xr.Dataset:
+def to_dataset(specs: pd.DataFrame, /) -> xr.Dataset:
     """Convert given specification DataFrame to an Xarray Dataset."""
     coords = to_variables(specs, Use.COORD, Use.COORDS)
     data_vars = to_variables(specs, Use.DATA, Use.DATA_VARS)
@@ -102,7 +103,7 @@ def to_dataset(specs: ts.SpecFrame, /) -> xr.Dataset:
     return ds
 
 
-def to_datatree(specs: ts.SpecFrame, /) -> xr.DataTree:
+def to_datatree(specs: pd.DataFrame, /) -> xr.DataTree:
     """Convert given specification DataFrame to an Xarray DataTree."""
     nodes: dict[str, xr.Dataset] = {}
 
@@ -114,7 +115,7 @@ def to_datatree(specs: ts.SpecFrame, /) -> xr.DataTree:
     return dt
 
 
-def to_factory(specs: ts.SpecFrame, default: T, /) -> T:
+def to_factory(specs: pd.DataFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray factory."""
     for _, spec in specs[::-1].iterrows():
         if spec.xarrayspecs_use == Use.FACTORY:
@@ -123,7 +124,7 @@ def to_factory(specs: ts.SpecFrame, default: T, /) -> T:
     return default
 
 
-def to_name(specs: ts.SpecFrame, default: T, /) -> T:
+def to_name(specs: pd.DataFrame, default: T, /) -> T:
     """Convert given specification DataFrame to an Xarray name."""
     for _, spec in specs[::-1].iterrows():
         if spec.xarrayspecs_use == Use.NAME:
@@ -132,7 +133,7 @@ def to_name(specs: ts.SpecFrame, default: T, /) -> T:
     return default
 
 
-def to_specframe(obj: Any, /) -> ts.SpecFrame:
+def to_specframe(obj: Any, /) -> pd.DataFrame:
     """Convert given object to a specification DataFrame for Xarray."""
     specs = ts.from_annotated(
         obj,
@@ -152,7 +153,7 @@ def to_specframe(obj: Any, /) -> ts.SpecFrame:
 
 
 def to_variables(
-    specs: ts.SpecFrame,
+    specs: pd.DataFrame,
     use_single: Use,
     use_multiple: Use,
     /,
