@@ -13,6 +13,7 @@ __all__ = [
     "attrs",
     "dims",
     "dtype",
+    "encoding",
     "name",
     "node",
     "use",
@@ -26,10 +27,11 @@ __all__ = [
     "Coords",
     "Data",
     "DataVars",
+    "Encoding",
     "Factory",
     "Name",
 ]
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 # dependencies
 from . import convert, core, typing

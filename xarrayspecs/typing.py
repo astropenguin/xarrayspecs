@@ -10,6 +10,7 @@ __all__ = [
     "Coords",
     "Data",
     "DataVars",
+    "Encoding",
     "Factory",
     "Name",
 ]
@@ -51,5 +52,6 @@ Coord = Annotated[ArrayLike[TDims, TDtype], use("coord")]
 Coords = Annotated[Mapping[Hashable, ArrayLike[TDims, TDtype]], use("coords")]
 Data = Annotated[ArrayLike[TDims, TDtype], use("data")]
 DataVars = Annotated[Mapping[Hashable, ArrayLike[TDims, TDtype]], use("data_vars")]
+Encoding = Annotated[Mapping[Hashable, T], use("encoding")]
 Factory = Annotated[Callable[..., T], use("factory")]
 Name = Annotated[T, use("name")]

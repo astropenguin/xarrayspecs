@@ -1,8 +1,15 @@
 [project]
 name = "xarrayspecs"
-version = "0.7.0"
+version = "0.8.0"
 description = "Xarray specifications by type hints"
 readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "numpy>=2",
+    "readonlydict>=1",
+    "typespecs>=8",
+    "xarray>=2025",
+]
 keywords = [
     "annotation",
     "dataclass",
@@ -11,16 +18,10 @@ keywords = [
     "typing",
     "xarray",
 ]
-requires-python = ">=3.10,<4.0"
-dependencies = [
-    "numpy>=2",
-    "readonlydict>=1",
-    "typespecs>=6",
-    "xarray>=2025",
-]
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -30,7 +31,7 @@ classifiers = [
 
 [[project.authors]]
 name = "Akio Taniguchi"
-email = "a-taniguchi@mail.kitami-it.ac.jp"
+email = "mail@taniguchiak.io"
 
 [project.license]
 file = "LICENSE"
