@@ -8,6 +8,7 @@ __all__ = [
     "attrs",
     "dims",
     "dtype",
+    "encoding",
     "name",
     "node",
     "use",
@@ -35,6 +36,7 @@ Use = Literal[
     "coords",
     "data",
     "data_vars",
+    "encoding",
     "factory",
     "name",
 ]
@@ -164,6 +166,19 @@ def dims(*args: Any) -> ts.Spec:
 def dtype(dtype: Any | None = None, /) -> ts.Spec:
     """Returns a type specification for Xarray data type."""
     return ts.Spec(xarrayspecs_dtype=dtype)
+
+
+@overload
+def encoding(**kwargs: Any) -> ts.Spec: ...
+@overload
+def encoding(mapping: Mapping[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
+@overload
+def encoding(iterable: Tuples[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
+
+
+def encoding(*args: Any, **kwargs: Any) -> ts.Spec:
+    """Returns a type specification for Xarray encoding."""
+    return ts.Spec(xarrayspecs_encoding=dict(*args, **kwargs))
 
 
 def name(name: Hashable | None = None, /) -> ts.Spec:

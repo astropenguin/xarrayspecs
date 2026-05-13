@@ -25,6 +25,7 @@ class Use(str, Enum):
     COORDS = "coords"
     DATA = "data"
     DATA_VARS = "data_vars"
+    ENCODING = "encoding"
     FACTORY = "factory"
     NAME = "name"
 
@@ -34,10 +35,15 @@ def to_dataarray(specs: pd.DataFrame, /) -> xr.DataArray:
     DataArray = last(find(specs, Use.FACTORY).values(), xr.DataArray)
     coords = find(specs, Use.COORD, Use.COORDS, variable)
     data_vars = find(specs, Use.DATA, Use.DATA_VARS, variable)
-    name, (dims, data, attrs) = last(data_vars.items(), (None, (None, None, None)))
+
+    name, (dims, data, attrs, encoding) = last(
+        data_vars.items(),
+        (None, (None, None, None, None)),
+    )
 
     da = DataArray(data, coords, dims, name, attrs)
     da.attrs.update(find(specs, Use.ATTR, Use.ATTRS))
+    da.encoding.update(last(find(specs, Use.ENCODING).values(), encoding or {}))
     da.name = last(find(specs, Use.NAME).values(), da.name)
     return da
 
@@ -50,6 +56,7 @@ def to_dataset(specs: pd.DataFrame, /) -> xr.Dataset:
 
     ds = Dataset(data_vars, coords)
     ds.attrs.update(find(specs, Use.ATTR, Use.ATTRS))
+    ds.encoding.update(last(find(specs, Use.ENCODING).values(), {}))
     return ds
 
 
@@ -62,6 +69,7 @@ def to_datatree(specs: pd.DataFrame, /) -> xr.DataTree:
         nodes[name] = to_dataset(group)  # type: ignore
 
     dt = DataTree.from_dict(nodes)  # type: ignore
+    dt.encoding.update(last(find(specs, Use.ENCODING).values(), {}))
     dt.name = last(find(specs, Use.NAME).values(), dt.name)
     return dt
 
@@ -74,6 +82,7 @@ def to_specs(obj: Any, /) -> pd.DataFrame:
             xarrayspecs_attrs=None,
             xarrayspecs_dims=None,
             xarrayspecs_dtype=None,
+            xarrayspecs_encoding=None,
             xarrayspecs_name=None,
             xarrayspecs_node=None,
             xarrayspecs_use=None,
@@ -113,6 +122,7 @@ def variable(data: Any, spec: pd.Series, /) -> tuple[
     tuple[Hashable, ...] | None,  # dims
     Any,  # data
     dict[Hashable, Any] | None,  # attrs
+    dict[Hashable, Any] | None,  # encoding
 ]:
     """Format given data with given specification Series to an Xarray variable."""
     if (dims := spec.xarrayspecs_dims) is not None:
@@ -130,4 +140,4 @@ def variable(data: Any, spec: pd.Series, /) -> tuple[
         else:
             data = np.asarray(data, dtype=dtype)
 
-    return dims, data, spec.xarrayspecs_attrs
+    return dims, data, spec.xarrayspecs_attrs, spec.xarrayspecs_encoding

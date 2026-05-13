@@ -13,6 +13,7 @@ __all__ = [
     "attrs",
     "dims",
     "dtype",
+    "encoding",
     "name",
     "node",
     "use",
@@ -26,6 +27,7 @@ __all__ = [
     "Coords",
     "Data",
     "DataVars",
+    "Encoding",
     "Factory",
     "Name",
 ]
