@@ -1,16 +1,7 @@
-__all__ = [
-    "to_attrs",
-    "to_dataarray",
-    "to_dataset",
-    "to_datatree",
-    "to_factory",
-    "to_name",
-    "to_specframe",
-    "to_variables",
-]
+__all__ = ["to_dataarray", "to_dataset", "to_datatree", "to_specs"]
 
 # standard library
-from collections.abc import Hashable
+from collections.abc import Callable, Hashable, Reversible
 from enum import Enum
 from typing import Any, TypeVar
 
@@ -25,10 +16,6 @@ from typing_extensions import get_args, get_origin
 
 # type hints
 T = TypeVar("T")
-Attrs = dict[Hashable, Any]
-Dims = tuple[Hashable, ...] | None
-Dtype = Any | None
-Variable = tuple[Dims, Any, Attrs]
 
 
 class Use(str, Enum):
@@ -42,138 +29,105 @@ class Use(str, Enum):
     NAME = "name"
 
 
-def astype(obj: Any, dtype: Dtype, /) -> Any:
-    """Convert given object to given dtype."""
-    if dtype is Any or dtype is None:
-        return obj
-
-    if hasattr(obj, "astype"):
-        return obj.astype(dtype, copy=False)
-    else:
-        return np.asarray(obj, dtype=dtype)
-
-
-def dims(obj: Any, /) -> Dims:
-    """Convert given object to Xarray dimensions."""
-    if obj is None:
-        return None
-
-    if is_literal(obj) or is_scalar(obj):
-        obj = (obj,)
-
-    if get_origin(obj) is tuple:
-        obj = get_args(obj)
-
-    return tuple(get_args(v)[0] if is_literal(v) else v for v in obj)
-
-
-def to_attrs(specs: pd.DataFrame, /) -> Attrs:
-    """Convert given specification DataFrame to Xarray attributes."""
-    attrs: Attrs = {}
-
-    for _, spec in specs.iterrows():
-        if spec.xarrayspecs_use == Use.ATTR:
-            attrs[spec.xarrayspecs_name] = spec.data
-        elif spec.xarrayspecs_use == Use.ATTRS:
-            for name, data in spec.data.items():
-                attrs[name] = data
-
-    return attrs
-
-
 def to_dataarray(specs: pd.DataFrame, /) -> xr.DataArray:
     """Convert given specification DataFrame to an Xarray DataArray."""
-    coords = to_variables(specs, Use.COORD, Use.COORDS)
-    data_vars = to_variables(specs, Use.DATA, Use.DATA_VARS)
-    name, (dims, data, attrs) = next(reversed(data_vars.items()))
+    DataArray = last(find(specs, Use.FACTORY).values(), xr.DataArray)
+    coords = find(specs, Use.COORD, Use.COORDS, variable)
+    data_vars = find(specs, Use.DATA, Use.DATA_VARS, variable)
+    name, (dims, data, attrs) = last(data_vars.items(), (None, (None, None, None)))
 
-    da = to_factory(specs, xr.DataArray)(data, coords, dims, name, attrs)
-    da.attrs.update(to_attrs(specs))
-    da.name = to_name(specs, da.name)
+    da = DataArray(data, coords, dims, name, attrs)
+    da.attrs.update(find(specs, Use.ATTR, Use.ATTRS))
+    da.name = last(find(specs, Use.NAME).values(), da.name)
     return da
 
 
 def to_dataset(specs: pd.DataFrame, /) -> xr.Dataset:
     """Convert given specification DataFrame to an Xarray Dataset."""
-    coords = to_variables(specs, Use.COORD, Use.COORDS)
-    data_vars = to_variables(specs, Use.DATA, Use.DATA_VARS)
+    Dataset = last(find(specs, Use.FACTORY).values(), xr.Dataset)
+    coords = find(specs, Use.COORD, Use.COORDS, variable)
+    data_vars = find(specs, Use.DATA, Use.DATA_VARS, variable)
 
-    ds = to_factory(specs, xr.Dataset)(data_vars, coords)
-    ds.attrs.update(to_attrs(specs))
+    ds = Dataset(data_vars, coords)
+    ds.attrs.update(find(specs, Use.ATTR, Use.ATTRS))
     return ds
 
 
 def to_datatree(specs: pd.DataFrame, /) -> xr.DataTree:
     """Convert given specification DataFrame to an Xarray DataTree."""
+    DataTree = last(find(specs, Use.FACTORY).values(), xr.DataTree)
     nodes: dict[str, xr.Dataset] = {}
 
     for name, group in specs.groupby("xarrayspecs_node"):
         nodes[name] = to_dataset(group)  # type: ignore
 
-    dt = to_factory(specs, xr.DataTree).from_dict(nodes)  # type: ignore
-    dt.name = to_name(specs, dt.name)
+    dt = DataTree.from_dict(nodes)  # type: ignore
+    dt.name = last(find(specs, Use.NAME).values(), dt.name)
     return dt
 
 
-def to_factory(specs: pd.DataFrame, default: T, /) -> T:
-    """Convert given specification DataFrame to an Xarray factory."""
-    for _, spec in specs[::-1].iterrows():
-        if spec.xarrayspecs_use == Use.FACTORY:
-            return spec.data
-
-    return default
-
-
-def to_name(specs: pd.DataFrame, default: T, /) -> T:
-    """Convert given specification DataFrame to an Xarray name."""
-    for _, spec in specs[::-1].iterrows():
-        if spec.xarrayspecs_use == Use.NAME:
-            return spec.data
-
-    return default
-
-
-def to_specframe(obj: Any, /) -> pd.DataFrame:
+def to_specs(obj: Any, /) -> pd.DataFrame:
     """Convert given object to a specification DataFrame for Xarray."""
     specs = ts.from_annotated(
         obj,
         default=dict(
             xarrayspecs_attrs=None,
-            xarrayspecs_dtype=None,
             xarrayspecs_dims=None,
+            xarrayspecs_dtype=None,
             xarrayspecs_name=None,
             xarrayspecs_node=None,
             xarrayspecs_use=None,
         ),
     )
-
     index = specs.index.to_series()
     specs["xarrayspecs_name"] = specs.xarrayspecs_name.fillna(index)
     return specs
 
 
-def to_variables(
+def find(
     specs: pd.DataFrame,
-    use_single: Use,
-    use_multiple: Use,
+    use_scalar: Use,
+    use_mapping: Use | None = None,
+    format: Callable[[Any, pd.Series], T] = lambda data, spec: data,
     /,
-) -> dict[Hashable, Variable]:
-    """Convert given specification DataFrame to Xarray variables."""
-    variables: dict[Hashable, Variable] = {}
+) -> dict[Hashable, T]:
+    """Find items in given specification DataFrame with given Xarray use(s)."""
+    items: dict[Hashable, T] = {}
 
     for _, spec in specs.iterrows():
-        if spec.xarrayspecs_use == use_single:
-            variables[spec.xarrayspecs_name] = (
-                dims(spec.xarrayspecs_dims),
-                astype(spec.data, spec.xarrayspecs_dtype),
-                spec.xarrayspecs_attrs,
-            )
-        elif spec.xarrayspecs_use == use_multiple:
+        if (use := spec.xarrayspecs_use) == use_scalar:
+            items[spec.xarrayspecs_name] = format(spec.data, spec)
+        elif use == use_mapping and spec.data is not None:
             for name, data in spec.data.items():
-                variables[name] = (
-                    dims(spec.xarrayspecs_dims),
-                    astype(data, spec.xarrayspecs_dtype),
-                    spec.xarrayspecs_attrs,
-                )
+                items[name] = format(data, spec)
 
-    return variables
+    return items
+
+
+def last(obj: Reversible[T], default: T, /) -> T:
+    """Return the last item of given reversible object or the default value."""
+    return next(reversed(obj), default)
+
+
+def variable(data: Any, spec: pd.Series, /) -> tuple[
+    tuple[Hashable, ...] | None,  # dims
+    Any,  # data
+    dict[Hashable, Any] | None,  # attrs
+]:
+    """Format given data with given specification Series to an Xarray variable."""
+    if (dims := spec.xarrayspecs_dims) is not None:
+        if is_literal(dims) or is_scalar(dims):
+            dims = (dims,)
+
+        if get_origin(dims) is tuple:
+            dims = get_args(dims)
+
+        dims = tuple(get_args(v)[0] if is_literal(v) else v for v in dims)
+
+    if (dtype := spec.xarrayspecs_dtype) is not Any and dtype is not None:
+        if hasattr(data, "astype"):
+            data = data.astype(dtype, copy=False)
+        else:
+            data = np.asarray(data, dtype=dtype)
+
+    return dims, data, spec.xarrayspecs_attrs

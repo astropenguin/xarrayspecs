@@ -23,7 +23,7 @@ import typespecs as ts
 import xarray as xr
 from readonlydict import Tuples
 from typing_extensions import ParamSpec
-from .convert import to_dataarray, to_dataset, to_datatree, to_specframe
+from .convert import to_dataarray, to_dataset, to_datatree, to_specs
 
 # type hints
 P = ParamSpec("P")
@@ -107,7 +107,7 @@ def asdataarray(obj: Other[P], /) -> xr.DataArray: ...
 
 def asdataarray(obj: Any, /) -> Any:
     """Convert given Xarray specifications to an Xarray DataArray."""
-    return to_dataarray(to_specframe(obj))
+    return to_dataarray(to_specs(obj))
 
 
 @overload
@@ -118,7 +118,7 @@ def asdataset(obj: Other[P], /) -> xr.Dataset: ...
 
 def asdataset(obj: Any, /) -> Any:
     """Convert given Xarray specifications to an Xarray Dataset."""
-    return to_dataset(to_specframe(obj))
+    return to_dataset(to_specs(obj))
 
 
 @overload
@@ -129,7 +129,7 @@ def asdatatree(obj: Other[P], /) -> xr.DataTree: ...
 
 def asdatatree(obj: Any, /) -> Any:
     """Convert given Xarray specifications to an Xarray DataTree."""
-    return to_datatree(to_specframe(obj))
+    return to_datatree(to_specs(obj))
 
 
 @overload
