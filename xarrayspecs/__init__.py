@@ -31,7 +31,7 @@ __all__ = [
     "Factory",
     "Name",
 ]
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 # dependencies
 from . import convert, core, typing
