@@ -1,13 +1,13 @@
 [project]
 name = "xarrayspecs"
-version = "0.8.0"
-description = "Xarray specifications by type hints"
+version = "0.9.0"
+description = "Xarray specifications via type hints"
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
 dependencies = [
     "numpy>=2",
     "readonlydict>=1",
-    "typespecs>=8",
+    "typespecs>=10",
     "xarray>=2025",
 ]
 keywords = [
@@ -51,7 +51,7 @@ dev = [
     "myst-parser>=4,<6",
     "pandas-stubs>=2",
     "pydantic>=2,<3",
-    "pydata-sphinx-theme>=0.16,<1.0",
+    "pydata-sphinx-theme>=0.18,<1.0",
     "pyright>=1,<2",
     "pytest>=8,<10",
     "sphinx>=8,<10",

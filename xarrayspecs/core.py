@@ -24,7 +24,7 @@ import typespecs as ts
 import xarray as xr
 from readonlydict import Tuples
 from typing_extensions import ParamSpec
-from .convert import to_dataarray, to_dataset, to_datatree, to_specs
+from .convert import to_dataarray, to_dataset, to_datatree, to_specframe
 
 # type hints
 P = ParamSpec("P")
@@ -62,7 +62,6 @@ class AsDataArray:
     @overload
     @classmethod
     def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataArray: ...
-
     @classmethod
     def new(cls: Any, *args: Any, **kwargs: Any) -> Any:
         """Convert the Xarray specifications to an Xarray DataArray."""
@@ -78,7 +77,6 @@ class AsDataset:
     @overload
     @classmethod
     def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.Dataset: ...
-
     @classmethod
     def new(cls: Any, *args: Any, **kwargs: Any) -> Any:
         """Convert the Xarray specifications to an Xarray Dataset."""
@@ -94,7 +92,6 @@ class AsDataTree:
     @overload
     @classmethod
     def new(cls: Type[Other[P]], *args: P.args, **kwargs: P.kwargs) -> xr.DataTree: ...
-
     @classmethod
     def new(cls: Any, *args: Any, **kwargs: Any) -> Any:
         """Convert the Xarray specifications to an Xarray DataTree."""
@@ -105,33 +102,27 @@ class AsDataTree:
 def asdataarray(obj: HasFactory[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdataarray(obj: Other[P], /) -> xr.DataArray: ...
-
-
 def asdataarray(obj: Any, /) -> Any:
     """Convert given Xarray specifications to an Xarray DataArray."""
-    return to_dataarray(to_specs(obj))
+    return to_dataarray(to_specframe(obj))
 
 
 @overload
 def asdataset(obj: HasFactory[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdataset(obj: Other[P], /) -> xr.Dataset: ...
-
-
 def asdataset(obj: Any, /) -> Any:
     """Convert given Xarray specifications to an Xarray Dataset."""
-    return to_dataset(to_specs(obj))
+    return to_dataset(to_specframe(obj))
 
 
 @overload
 def asdatatree(obj: HasFactory[P, T], /) -> T: ...  # type: ignore
 @overload
 def asdatatree(obj: Other[P], /) -> xr.DataTree: ...
-
-
 def asdatatree(obj: Any, /) -> Any:
     """Convert given Xarray specifications to an Xarray DataTree."""
-    return to_datatree(to_specs(obj))
+    return to_datatree(to_specframe(obj))
 
 
 @overload
@@ -140,8 +131,6 @@ def attrs(**kwargs: Any) -> ts.Spec: ...
 def attrs(mapping: Mapping[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
 @overload
 def attrs(iterable: Tuples[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
-
-
 def attrs(*args: Any, **kwargs: Any) -> ts.Spec:
     """Returns a type specification for Xarray attributes."""
     return ts.Spec(xarrayspecs_attrs=dict(*args, **kwargs))
@@ -153,8 +142,6 @@ def dims() -> ts.Spec: ...
 def dims(iterable: Iterable[Hashable], /) -> ts.Spec: ...
 @overload
 def dims(*hashable: Hashable) -> ts.Spec: ...
-
-
 def dims(*args: Any) -> ts.Spec:
     """Returns a type specification for Xarray dimensions."""
     if len(args) == 1:
@@ -174,8 +161,6 @@ def encoding(**kwargs: Any) -> ts.Spec: ...
 def encoding(mapping: Mapping[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
 @overload
 def encoding(iterable: Tuples[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
-
-
 def encoding(*args: Any, **kwargs: Any) -> ts.Spec:
     """Returns a type specification for Xarray encoding."""
     return ts.Spec(xarrayspecs_encoding=dict(*args, **kwargs))

@@ -1,4 +1,4 @@
-__all__ = ["to_dataarray", "to_dataset", "to_datatree", "to_specs"]
+__all__ = ["to_dataarray", "to_dataset", "to_datatree", "to_specframe"]
 
 # standard library
 from collections.abc import Callable, Hashable, Reversible
@@ -74,22 +74,26 @@ def to_datatree(specs: pd.DataFrame, /) -> xr.DataTree:
     return dt
 
 
-def to_specs(obj: Any, /) -> pd.DataFrame:
+def to_specframe(obj: Any, /) -> pd.DataFrame:
     """Convert given object to a specification DataFrame for Xarray."""
     specs = ts.from_annotated(
         obj,
-        default=dict(
-            xarrayspecs_attrs=None,
-            xarrayspecs_dims=None,
-            xarrayspecs_dtype=None,
-            xarrayspecs_encoding=None,
-            xarrayspecs_name=None,
-            xarrayspecs_node=None,
-            xarrayspecs_use=None,
-        ),
+        conflict={
+            "xarrayspecs_attrs": "update",
+            "xarrayspecs_encoding": "update",
+        },
+        default={
+            "xarrayspecs_attrs": None,
+            "xarrayspecs_dims": None,
+            "xarrayspecs_dtype": None,
+            "xarrayspecs_encoding": None,
+            "xarrayspecs_name": None,
+            "xarrayspecs_node": None,
+            "xarrayspecs_use": None,
+        },
     )
     index = specs.index.to_series()
-    specs["xarrayspecs_name"] = specs.xarrayspecs_name.fillna(index)
+    specs["xarrayspecs_name"] = specs["xarrayspecs_name"].fillna(index)
     return specs
 
 

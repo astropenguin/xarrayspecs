@@ -17,7 +17,7 @@ __all__ = [
 
 # standard library
 from collections.abc import Callable, Hashable, Mapping
-from typing import TYPE_CHECKING, Annotated, Any, Protocol, TypeVar
+from typing import TYPE_CHECKING, Annotated as Ann, Any, Protocol, TypeVar
 
 # dependencies
 import typespecs as ts
@@ -41,17 +41,17 @@ class ArrayLike(Protocol[TDims, TDtype]):
 
 
 # type aliases for Xarray dims and dtype
-Dims = Annotated[T, dims(ts.ITSELF)]
-Dtype = Annotated[T, dtype(ts.ITSELF)]
+Dims = Ann[T, dims(ts.ITSELF)]
+Dtype = Ann[T, dtype(ts.ITSELF)]
 ArrayLike = ArrayLike[Dims[TDims], Dtype[TDtype]]  # type: ignore
 
 # type aliases for Xarray use
-Attr = Annotated[T, use("attr")]
-Attrs = Annotated[Mapping[Hashable, T], use("attrs")]
-Coord = Annotated[ArrayLike[TDims, TDtype], use("coord")]
-Coords = Annotated[Mapping[Hashable, ArrayLike[TDims, TDtype]], use("coords")]
-Data = Annotated[ArrayLike[TDims, TDtype], use("data")]
-DataVars = Annotated[Mapping[Hashable, ArrayLike[TDims, TDtype]], use("data_vars")]
-Encoding = Annotated[Mapping[Hashable, T], use("encoding")]
-Factory = Annotated[Callable[..., T], use("factory")]
-Name = Annotated[T, use("name")]
+Attr = Ann[T, use("attr")]
+Attrs = Ann[Mapping[Hashable, T] | None, use("attrs")]
+Coord = Ann[ArrayLike[TDims, TDtype], use("coord")]
+Coords = Ann[Mapping[Hashable, ArrayLike[TDims, TDtype]] | None, use("coords")]
+Data = Ann[ArrayLike[TDims, TDtype], use("data")]
+DataVars = Ann[Mapping[Hashable, ArrayLike[TDims, TDtype]] | None, use("data_vars")]
+Encoding = Ann[Mapping[Hashable, T] | None, use("encoding")]
+Factory = Ann[Callable[..., T], use("factory")]
+Name = Ann[T, use("name")]
