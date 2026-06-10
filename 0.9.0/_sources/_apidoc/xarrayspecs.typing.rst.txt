@@ -1,0 +1,7 @@
+xarrayspecs.typing module
+=========================
+
+.. automodule:: xarrayspecs.typing
+   :members:
+   :show-inheritance:
+   :undoc-members:
