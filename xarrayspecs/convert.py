@@ -139,6 +139,9 @@ def variable(data: Any, spec: pd.Series, /) -> tuple[
         dims = tuple(get_args(v)[0] if is_literal(v) else v for v in dims)
 
     if (dtype := spec.xarrayspecs_dtype) is not Any and dtype is not None:
+        if is_literal(dtype):
+            dtype = get_args(dtype)[0]
+
         if hasattr(data, "astype"):
             data = data.astype(dtype, copy=False)
         else:
