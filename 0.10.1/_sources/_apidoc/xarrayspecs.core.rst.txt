@@ -1,0 +1,7 @@
+xarrayspecs.core module
+=======================
+
+.. automodule:: xarrayspecs.core
+   :members:
+   :show-inheritance:
+   :undoc-members:
