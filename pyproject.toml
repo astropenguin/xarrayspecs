@@ -1,12 +1,12 @@
 [project]
 name = "xarrayspecs"
-version = "0.9.0"
+version = "0.10.0"
 description = "Xarray specifications via type hints"
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
 dependencies = [
     "numpy>=2",
-    "readonlydict>=1",
+    "readonlydict>=2",
     "typespecs>=10",
     "xarray>=2025",
 ]

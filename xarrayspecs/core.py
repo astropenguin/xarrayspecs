@@ -22,7 +22,7 @@ from typing import Any, Literal, Protocol, TypeVar, overload
 # dependencies
 import typespecs as ts
 import xarray as xr
-from readonlydict import Tuples
+from readonlydict import Items, ReadonlyDict
 from typing_extensions import ParamSpec
 from .convert import to_dataarray, to_dataset, to_datatree, to_specframe
 
@@ -130,10 +130,10 @@ def attrs(**kwargs: Any) -> ts.Spec: ...
 @overload
 def attrs(mapping: Mapping[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
 @overload
-def attrs(iterable: Tuples[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
+def attrs(iterable: Items[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
 def attrs(*args: Any, **kwargs: Any) -> ts.Spec:
     """Returns a type specification for Xarray attributes."""
-    return ts.Spec(xarrayspecs_attrs=dict(*args, **kwargs))
+    return ts.Spec(xarrayspecs_attrs=ReadonlyDict(*args, **kwargs))
 
 
 @overload
@@ -160,10 +160,10 @@ def encoding(**kwargs: Any) -> ts.Spec: ...
 @overload
 def encoding(mapping: Mapping[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
 @overload
-def encoding(iterable: Tuples[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
+def encoding(iterable: Items[Hashable, Any], /, **kwargs: Any) -> ts.Spec: ...
 def encoding(*args: Any, **kwargs: Any) -> ts.Spec:
     """Returns a type specification for Xarray encoding."""
-    return ts.Spec(xarrayspecs_encoding=dict(*args, **kwargs))
+    return ts.Spec(xarrayspecs_encoding=ReadonlyDict(*args, **kwargs))
 
 
 def name(name: Hashable | None = None, /) -> ts.Spec:
